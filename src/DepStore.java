@@ -572,6 +572,7 @@ public class DepStore {
                 return;
             }
 
+            System.out.println("------------------------------------------------------------------------------------------------");
             System.out.println("1. Add or Remove quantity");
             System.out.println("2. Remove item");
             System.out.println("3. Back to categories");
