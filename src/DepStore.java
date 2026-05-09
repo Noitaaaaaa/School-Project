@@ -15,7 +15,7 @@ public class DepStore {
     private static final String[] SPF_CHOICES = {"30", "50", "60", "75", "100"};
     private static final String[] WEIGHT_CHOICES = {"2 kg", "5 kg", "10 kg", "15 kg", "20 kg"};
 
-    public static void main(String[] args) {
+    public static void main(String[] args) {    
         Scanner sc = new Scanner(System.in);
         Store store = new Store();
         List<CartItem> cart = new ArrayList<>();
@@ -25,23 +25,28 @@ public class DepStore {
         System.out.println("================================");
         System.out.println("Choose by number or by words, like Clothing, H&M, shirts, medium, cart, checkout, card, or cash.");
 
-        boolean shopping = true;     // When shopping is true dyan magsisimula nag shopping loop and hindi matatapos until maging false yung shopping
-        while (shopping) {           // Shopping will be false once na nag checkout ang user
+        // When shopping is true dyan magsisimula nag shopping loop and hindi matatapos until maging false yung shopping
+        // Shopping will be false once na nag checkout ang user
+        boolean shopping = true;     
+        while (shopping) {           
             MenuChoice choice = chooseMenuOption(sc, store.getCategories());
 
-            if (choice.isCart()) {    // Once na napili ang Cart mago-open yung cart para makita ng user ang laman ng cart and pwede i manage
+            // Once na napili ang Cart mago-open yung cart para makita ng user ang laman ng cart and pwede i manage
+            if (choice.isCart()) {    
                 openCart(sc, cart);
                 continue;
             }
 
-            if (choice.isCheckout()) { // Once na napili ang Checkout mag a-ask muna sya if yes/no just incase na wrong input
+            // Once na napili ang Checkout mag a-ask muna sya if yes/no just incase na wrong input
+            if (choice.isCheckout()) { 
                 shopping = !askYesNo(sc, "Are you sure you want to checkout? (yes/no): ");
                 continue;
             }
-
-            Category category = store.getCategories().get(choice.getIndex()); // Once na nakapili ng category pupunta na sa store menu para pumili ang user
+             // Once na nakapili ng category pupunta na sa store menu para pumili ang user
+            Category category = store.getCategories().get(choice.getIndex());
             boolean choosingStore = true;
-            while (choosingStore) {     // When choosingStore is true magsisimula na ang store menu loop
+            // When choosingStore is true magsisimula na ang store menu loop
+            while (choosingStore) {     
                 StoreBrand storeBrand = chooseStoreBrand(sc, category);
                 if (storeBrand == null) {
                     choosingStore = false;
@@ -49,7 +54,8 @@ public class DepStore {
                 }
                 
                 boolean choosingFromStore = true;
-                while (choosingFromStore) { // Once na naging true ang choosingFromStore dito na magsisimula ang loop ng pagpili ng product
+                // Once na naging true ang choosingFromStore dito na magsisimula ang loop ng pagpili ng product
+                while (choosingFromStore) { 
                     Product product = chooseProduct(sc, category, storeBrand);
                     if (product == null) {
                         choosingFromStore = false;
@@ -62,8 +68,10 @@ public class DepStore {
                     }
 
                     ProductOption option = null;
-                    if (product.hasOptions()) { // If may stock naman dito magsisimula yung chooseProductOption para pumili yung user ng options 
-                        option = chooseProductOption(sc, product);  // Options na katulad ng mga sizes
+                    // If may stock naman dito magsisimula yung chooseProductOption para pumili yung user ng options 
+                     // Options na katulad ng mga sizes
+                    if (product.hasOptions()) {                         
+                        option = chooseProductOption(sc, product); 
                         if (option == null) {
                             continue;
                         }
@@ -71,7 +79,8 @@ public class DepStore {
 
                     int quantity = readQuantity(sc, "\nHow many " + product.getDisplayName(option) + " will you buy? ");
 
-                    if (addToCart(cart, product, option, quantity)) { // After addToCart mag pri-print ng add to cart and babalik sa Category Menu
+                    // After addToCart mag pri-print ng add to cart and babalik sa Category Menu
+                    if (addToCart(cart, product, option, quantity)) { 
                         System.out.println("\n" + quantity + " x " + product.getDisplayName(option) + " added to your cart.");
                         choosingFromStore = false;
                         choosingStore = false;
@@ -79,9 +88,10 @@ public class DepStore {
                 }
             }
         }
-
-        Payment payment = collectPayment(sc, cart); // Once na nag accept na sa Checkout mag tatanong yung program if Cash or Card
-        printReceipt(cart, payment);                // Printing of Receipt
+        // Once na nag accept na sa Checkout mag tatanong yung program if Cash or Card
+        // Printing of Receipt
+        Payment payment = collectPayment(sc, cart); 
+        printReceipt(cart, payment);                
         sc.close();
     }
 
