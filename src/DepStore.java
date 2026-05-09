@@ -337,6 +337,43 @@ public class DepStore {
         }
     }
 
+    private static int readPaymentAmount(Scanner sc, String prompt) {
+        // Payment accepts plain numbers and common currency formats like P1000, PHP 1000, and 1,000.
+        while (true) {
+            System.out.print(prompt);
+            String input = sc.nextLine().trim();
+            Integer amount = parseMoneyAmount(input);
+
+            if (amount != null && amount > 0) {
+                return amount;
+            }
+
+            System.out.println("Please enter a valid payment amount.");
+        }
+    }
+
+    private static Integer parseMoneyAmount(String input) {
+        if (input == null) {
+            return null;
+        }
+
+        String text = input.toLowerCase()
+                .replace(",", "")
+                .replace("₱", "p")
+                .trim();
+
+        text = text.replaceAll("^(php|pesos?|p)\\s*", "");
+        text = text.replaceAll("\\s*(php|pesos?|p)$", "");
+
+        if (text.matches("\\d+\\.0{1,2}")) {
+            text = text.substring(0, text.indexOf('.'));
+        } else if (text.matches("\\d+\\.\\d+")) {
+            return null;
+        }
+
+        return parseNumber(text);
+    }
+
     private static Integer parseNumber(String input) {
         if (input == null) {
             return null;
@@ -649,14 +686,22 @@ public class DepStore {
         }
 
         System.out.println("\n==================== Payment Summary ====================");
-        System.out.println("Amount to pay: " + formatPrice(totalPrice));
+        printPaymentDetailBox(
+                new String[] {"Amount to pay"},
+                new String[] {formatPrice(totalPrice)});
         System.out.println("=========================================================");
 
         // This list contains the available payment method options, which are Card or Cash, and their respective aliases for user input
         List<ChoiceOption> paymentOptions = Arrays.asList(
                 new ChoiceOption(1, "Card", "card", "cards", "credit card", "credit cards", "debit card", "debit cards"),
                 new ChoiceOption(2, "Cash", "cash", "money"));
-        ChoiceOption paymentChoice = readChoice(sc, "\nPayment method (Card or Cash?): ", paymentOptions);
+        System.out.println("\n+----+----------------+");
+        System.out.println("| No | Payment Method |");
+        System.out.println("+----+----------------+");
+        System.out.println("| 1  | Card           |");
+        System.out.println("| 2  | Cash           |");
+        System.out.println("+----+----------------+");
+        ChoiceOption paymentChoice = readChoice(sc, "\nPayment method (1/Card or 2/Cash): ", paymentOptions);
 
         if (paymentChoice.getNumber() == 1) {
             // Card is automatically approved in this simple program
@@ -666,7 +711,7 @@ public class DepStore {
 
         while (true) {
             // For cash, keep asking until enough yung binayad ng customer
-            int amountPaid = readQuantity(sc, "Amount paid in cash: ");
+            int amountPaid = readPaymentAmount(sc, "Amount paid in cash: ");
             if (amountPaid >= totalPrice) {
                 return new Payment("Cash", amountPaid, amountPaid - totalPrice);
             }
@@ -743,10 +788,37 @@ public class DepStore {
         System.out.println("-------------------------------------------------------------------------------------------");
         System.out.println("Total items: " + totalQuantity);
         System.out.println("Total price: " + formatPrice(totalPrice));
-        System.out.println("Payment method: " + payment.getMethod());
-        System.out.println("Amount paid: " + formatPrice(payment.getAmountPaid()));
-        System.out.println("Exchange: " + formatPrice(payment.getChange()));
+        printPaymentDetailBox(
+                new String[] {"Payment method", "Amount paid", "Exchange"},
+                new String[] {payment.getMethod(), formatPrice(payment.getAmountPaid()), formatPrice(payment.getChange())});
         System.out.println("Thank you for shopping!");
+    }
+
+    private static void printPaymentDetailBox(String[] labels, String[] values) {
+        int labelWidth = 14;
+        int valueWidth = 14;
+
+        for (String label : labels) {
+            labelWidth = Math.max(labelWidth, label.length());
+        }
+        for (String value : values) {
+            valueWidth = Math.max(valueWidth, value.length());
+        }
+
+        String border = "+" + repeat("-", labelWidth + 2) + "+" + repeat("-", valueWidth + 2) + "+";
+        System.out.println(border);
+        for (int i = 0; i < labels.length; i++) {
+            System.out.printf("| %-" + labelWidth + "s | %" + valueWidth + "s |%n", labels[i], values[i]);
+        }
+        System.out.println(border);
+    }
+
+    private static String repeat(String text, int times) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < times; i++) {
+            result.append(text);
+        }
+        return result.toString();
     }
 
     // This method calculates the total price of all items in the cart by summing their subtotals, which is used for payment and receipt
