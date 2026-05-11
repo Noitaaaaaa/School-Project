@@ -25,7 +25,7 @@ public class DepStore {
         System.out.println("================================");
         System.out.println(" Welcome to the Augustore!");
         System.out.println("================================");
-        System.out.println("Choose by number or by words, like Clothing, H&M, shirts, medium, cart, checkout, card, or cash.");
+        System.out.println("Choose by number or by words, like Clothing, H&M, shirts, medium, cart, card, or cash.");
 
         // When running is true, the whole store app keeps accepting another shopping session.
         boolean running = true;
@@ -45,19 +45,6 @@ public class DepStore {
                 continue;
             }
 
-            // Once na napili ang Checkout mag a-ask muna sya if yes/no just incase na wrong input
-            if (choice.isCheckout()) { 
-                if (cart.isEmpty()) {
-                    System.out.println("\nThere is nothing in your cart yet.");
-                    if (askYesNo(sc, "Are you done shopping? (yes/no): ")) {
-                        running = false;
-                        shopping = false;
-                    }
-                    continue;
-                }
-                shopping = !askYesNo(sc, "Are you sure you want to checkout? (yes/no): ");
-                continue;
-            }
              // Once na nakapili ng category pupunta na sa store menu para pumili ang user
             Category category = store.getCategories().get(choice.getIndex());
             boolean choosingStore = true;
@@ -107,17 +94,6 @@ public class DepStore {
                 }
             }
         }
-            if (!running) {
-                continue;
-            }
-
-            // Once na nag accept na sa Checkout mag tatanong yung program if Cash or Card
-            Payment payment = collectPayment(sc, cart);
-            if (payment.isCompleted()) {
-                receiptHistory.add(new Receipt(receiptHistory.size() + 1, createReceiptItems(cart), payment));
-                running = handlePostPaymentOptions(sc, receiptHistory);
-                cart.clear();
-            }
         }
  
         sc.close();
@@ -141,26 +117,18 @@ public class DepStore {
         }
 
         System.out.println("\n========== Store Options ==========");
-        // Cart and Checkout options are added after the categories, so their numbers depend on how many categories there are. 
-        // They also have word choices like "cart" or "checkout" for user input.
+        // Cart is added after the categories, so its number depends on how many categories there are.
         System.out.printf("%2d. Cart%n", categories.size() + 1);
-        System.out.printf("%2d. Checkout%n", categories.size() + 2);
-        // Adding Cart and Checkout as valid choices with their respective numbers and word aliases.
+        // Adding Cart as a valid choice with its number and word aliases.
         options.add(new ChoiceOption(categories.size() + 1, "Cart", "cart", "carts", "basket", "baskets"));
-        options.add(new ChoiceOption(categories.size() + 2, "Checkout", "checkout", "checkouts", "pay", "payment", "payments"));
 
         // Dito binabasa yung final menu choice ng user
-        // User can choose a category by number or name, or choose cart or checkout by number or name
-        ChoiceOption choice = readChoice(sc, "\nChoose a category, cart, or checkout: ", options); 
+        // User can choose a category by number or name, or choose cart by number or name
+        ChoiceOption choice = readChoice(sc, "\nChoose a category or cart: ", options); 
 
         // If the user chose categories.size() + 1 the cart will open the cart menu,
         if (choice.getNumber() == categories.size() + 1) {
             return MenuChoice.cart();
-        }
-
-        // If the user chose categories.size() + 2 the checkout will open the checkout flow,
-        if (choice.getNumber() == categories.size() + 2) {
-            return MenuChoice.checkout();
         }
 
         // If the user chose a category number, the corresponding index is returned to show the stores under that category
@@ -314,7 +282,7 @@ public class DepStore {
             String input = sc.nextLine().trim();
             String normalizedInput = normalizeChoice(input);
 
-            // First checks word inputs like "cart", "checkout", "shirt", or aliases
+            // First checks word inputs like "cart", "shirt", or aliases
             for (ChoiceOption option : options) {
                 if (option.matches(normalizedInput)) {
                     return option;
@@ -332,21 +300,6 @@ public class DepStore {
             }
 
             System.out.println("Please enter a listed number or word choice.");
-        }
-    }
-
-    private static int readInt(Scanner sc, String prompt, int min, int max) {
-        // Used for numbers with allowed range, like changing cart quantity from -100 to 100
-        while (true) {
-            System.out.print(prompt);
-            String input = sc.nextLine().trim();
-            Integer number = parseNumber(input);
-
-            if (number != null && number >= min && number <= max) {
-                return number;
-            }
-
-            System.out.println("Please enter a number from " + min + " to " + max + ".");
         }
     }
 
@@ -1135,7 +1088,7 @@ public class DepStore {
         }
     }
 
-    // This class represents a menu choice, which can be a category, cart, or checkout option,
+    // This class represents a menu choice, which can be a category or cart option,
     // and stores the relevant index or action type for the main loop to handle the user's navigation through the menus
     private static class MenuChoice {
         private final int index;
@@ -1152,12 +1105,8 @@ public class DepStore {
         }
 
         static MenuChoice cart() {
-            // Cart and checkout use action names instead of category index
+            // Cart uses an action name instead of category index
             return new MenuChoice(-1, "cart");
-        }
-
-        static MenuChoice checkout() {
-            return new MenuChoice(-1, "checkout");
         }
 
         int getIndex() {
@@ -1166,10 +1115,6 @@ public class DepStore {
 
         boolean isCart() {
             return action.equals("cart");
-        }
-
-        boolean isCheckout() {
-            return action.equals("checkout");
         }
     }
 
