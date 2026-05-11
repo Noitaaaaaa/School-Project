@@ -13,32 +13,48 @@ public class DepStore {
     private static final String[] ZARA_JEAN_SIZES = {"26", "28", "30", "32", "34"};
     private static final String[] EURO_SHOE_SIZES = {"36", "37", "38", "39", "40"};
     private static final String[] SPF_CHOICES = {"30", "50", "60", "75", "100"};
-    private static final String[] WEIGHT_CHOICES = {"2 kg", "5 kg", "10 kg", "15 kg", "20 kg"};
+    private static final String[] WEIGHT_CHOICES = {"2kg", "5kg", "10kg", "15kg", "20kg"};
+    private static final String[] TUMBLER_SIZES = {"16 oz", "20 oz", "24 oz", "32 oz", "40 oz"};
 
     public static void main(String[] args) {    
         Scanner sc = new Scanner(System.in);
         Store store = new Store();
         List<CartItem> cart = new ArrayList<>();
+        List<Receipt> receiptHistory = new ArrayList<>();
 
         System.out.println("================================");
         System.out.println(" Welcome to the Augustore!");
         System.out.println("================================");
         System.out.println("Choose by number or by words, like Clothing, H&M, shirts, medium, cart, checkout, card, or cash.");
 
-        // When shopping is true dyan magsisimula nag shopping loop and hindi matatapos until maging false yung shopping
-        // Shopping will be false once na nag checkout ang user
-        boolean shopping = true;     
-        while (shopping) {           
+        // When running is true, the whole store app keeps accepting another shopping session.
+        boolean running = true;
+        while (running) {
+            // When shopping is true dyan magsisimula nag shopping loop and hindi matatapos until maging false yung shopping
+            // Shopping will be false once na nag checkout ang user
+            boolean shopping = true;
+            while (shopping) {
             MenuChoice choice = chooseMenuOption(sc, store.getCategories());
 
             // Once na napili ang Cart mago-open yung cart para makita ng user ang laman ng cart and pwede i manage
             if (choice.isCart()) {    
-                openCart(sc, cart);
+                running = openCart(sc, cart, receiptHistory);
+                if (!running) {
+                    shopping = false;
+                }
                 continue;
             }
 
             // Once na napili ang Checkout mag a-ask muna sya if yes/no just incase na wrong input
             if (choice.isCheckout()) { 
+                if (cart.isEmpty()) {
+                    System.out.println("\nThere is nothing in your cart yet.");
+                    if (askYesNo(sc, "Are you done shopping? (yes/no): ")) {
+                        running = false;
+                        shopping = false;
+                    }
+                    continue;
+                }
                 shopping = !askYesNo(sc, "Are you sure you want to checkout? (yes/no): ");
                 continue;
             }
@@ -77,7 +93,10 @@ public class DepStore {
                         }
                     }
 
-                    int quantity = readQuantity(sc, "\nHow many " + product.getDisplayName(option) + " will you buy? ");
+                    Integer quantity = readQuantity(sc, "\nHow many " + product.getDisplayName(option) + " will you buy? (or Back): ");
+                    if (quantity == null) {
+                        continue;
+                    }
 
                     // After addToCart mag pri-print ng add to cart and babalik sa Category Menu
                     if (addToCart(cart, product, option, quantity)) { 
@@ -88,10 +107,19 @@ public class DepStore {
                 }
             }
         }
-        // Once na nag accept na sa Checkout mag tatanong yung program if Cash or Card
-        // Printing of Receipt
-        Payment payment = collectPayment(sc, cart); 
-        printReceipt(cart, payment);                
+            if (!running) {
+                continue;
+            }
+
+            // Once na nag accept na sa Checkout mag tatanong yung program if Cash or Card
+            Payment payment = collectPayment(sc, cart);
+            if (payment.isCompleted()) {
+                receiptHistory.add(new Receipt(receiptHistory.size() + 1, createReceiptItems(cart), payment));
+                running = handlePostPaymentOptions(sc, receiptHistory);
+                cart.clear();
+            }
+        }
+ 
         sc.close();
     }
 
@@ -156,7 +184,7 @@ public class DepStore {
 
         // A back to category choice to go back to the chooseMenuOption part
         System.out.printf("%2d. Back to categories%n", storeBrands.size() + 1);
-        options.add(new ChoiceOption(storeBrands.size() + 1, "Back", "back", "backs", "category", "categories", "return"));
+        options.add(new ChoiceOption(storeBrands.size() + 1, "Back", "b", "back", "backs", "category", "categories", "return"));
 
         ChoiceOption choice = readChoice(sc, "\nChoose a store or brand: ", options);
         if (choice.getNumber() == storeBrands.size() + 1) {
@@ -175,8 +203,8 @@ public class DepStore {
 
         System.out.println("\n========== " + category.getName() + " > " + storeBrand.getName() + " Products ==========");
         if (showAvailableChoices) {
-            System.out.printf("%-5s %-28s %-14s %-24s %10s %10s%n", "No.", "Product", "Choice", "Available Choices", "Price", "Stock");
-            System.out.println("-------------------------------------------------------------------------------------------------");
+            System.out.printf("%-5s %-28s %-14s %-36s %10s %10s%n", "No.", "Product", "Choice", "Available Choices", "Price", "Stock");
+            System.out.println("-------------------------------------------------------------------------------------------------------------");
         } else {
             System.out.printf("%-5s %-28s %-14s %10s %10s%n", "No.", "Product", "Choice", "Price", "Stock");
             System.out.println("--------------------------------------------------------------------------");
@@ -191,7 +219,7 @@ public class DepStore {
             // This is mostly seen in the Clothes product list with the size options
             if (showAvailableChoices) {
                 System.out.printf(
-                        "%-5d %-28s %-14s %-24s %10s %10s%n",
+                        "%-5d %-28s %-14s %-36s %10s %10s%n",
                         i + 1,
                         product.getName(),
                         product.getOptionLabelDisplay(),
@@ -217,13 +245,13 @@ public class DepStore {
 
         // if showAvailableChoices is true, the separator line is longer to match the extra column, otherwise it's shorter
         if (showAvailableChoices) {
-            System.out.println("-------------------------------------------------------------------------------------------------");
+            System.out.println("-------------------------------------------------------------------------------------------------------------");
         } else {
             System.out.println("--------------------------------------------------------------------------");
         }
         // back to store choice
         System.out.printf("%-5d %s%n", products.size() + 1, "Back to stores");
-        options.add(new ChoiceOption(products.size() + 1, "Back", "back", "backs", "stores", "store", "brands", "brand", "return"));
+        options.add(new ChoiceOption(products.size() + 1, "Back", "b", "back", "backs", "stores", "store", "brands", "brand", "return"));
 
         // Dito binabasa yung final product choice ng user, pwede by number, name, or alias
         ChoiceOption choice = readChoice(sc, "\nChoose a product: ", options);
@@ -257,14 +285,14 @@ public class DepStore {
         System.out.println("-------------------------------");
         for (int i = 0; i < options.size(); i++) {
             ProductOption option = options.get(i);
-            System.out.printf("%-5d %-12s %10d%n", i + 1, option.getName(), option.getStock());
+            System.out.printf("%-5d %-12s %10s%n", i + 1, option.getName(), formatStock(option.getStock()));
             choiceOptions.add(new ChoiceOption(i + 1, option.getName(), option.getAliases()));
         }
         System.out.println("-------------------------------");
 
         // back option
         System.out.printf("%2d. Back to products%n", options.size() + 1);
-        choiceOptions.add(new ChoiceOption(options.size() + 1, "Back", "back", "backs", "product", "products", "return"));
+        choiceOptions.add(new ChoiceOption(options.size() + 1, "Back", "b", "back", "backs", "product", "products", "return"));
 
         ChoiceOption choice = readChoice(sc, "\nChoose " + product.getOptionLabel().toLowerCase() + ": ", choiceOptions);
         if (choice.getNumber() == options.size() + 1) {
@@ -322,34 +350,62 @@ public class DepStore {
         }
     }
 
-    private static int readQuantity(Scanner sc, String prompt) {
+    private static Integer readIntOrBack(Scanner sc, String prompt, int min, int max) {
+        while (true) {
+            System.out.print(prompt);
+            String input = sc.nextLine().trim();
+            if (isBackInput(input)) {
+                return null;
+            }
+            Integer number = parseNumber(input);
+
+            if (number != null && number >= min && number <= max) {
+                return number;
+            }
+
+            System.out.println("Please enter a number from " + min + " to " + max + ", or type Back.");
+        }
+    }
+
+    private static Integer readQuantity(Scanner sc, String prompt) {
         // Used for buying/payment amounts, kaya dapat positive number lang so it wont accept anything negative
         while (true) {
             System.out.print(prompt);
             String input = sc.nextLine().trim();
+            if (isBackInput(input)) {
+                return null;
+            }
             Integer number = parseNumber(input);
 
             if (number != null && number > 0) {
                 return number;
             }
 
-            System.out.println("Please enter at least 1.");
+            System.out.println("Please enter at least 1, or type Back.");
         }
     }
 
-    private static int readPaymentAmount(Scanner sc, String prompt) {
+    private static Integer readPaymentAmount(Scanner sc, String prompt) {
         // Payment accepts plain numbers and common currency formats like P1000, PHP 1000, and 1,000.
         while (true) {
             System.out.print(prompt);
             String input = sc.nextLine().trim();
+            if (isBackInput(input)) {
+                return null;
+            }
             Integer amount = parseMoneyAmount(input);
 
             if (amount != null && amount > 0) {
                 return amount;
             }
 
-            System.out.println("Please enter a valid payment amount.");
+            System.out.println("Please enter a valid payment amount, or type Back.");
         }
+    }
+
+    private static boolean isBackInput(String input) {
+        String text = normalizeChoice(input);
+        return text.equals("b") || text.equals("back") || text.equals("go back") || text.equals("cancel") || text.equals("return");
     }
 
     private static Integer parseMoneyAmount(String input) {
@@ -557,7 +613,7 @@ public class DepStore {
 
     // This method opens the cart menu where the user can see their cart items and choose to add/remove quantity, 
     // remove items, or go back to categories
-    private static void openCart(Scanner sc, List<CartItem> cart) {
+    private static boolean openCart(Scanner sc, List<CartItem> cart, List<Receipt> receiptHistory) {
         boolean viewingCart = true;
 
         // This loop keeps the cart open until the user chooses back
@@ -566,22 +622,25 @@ public class DepStore {
 
             if (cart.isEmpty()) {
                 // If empty ang cart, back lang ang valid action
+                System.out.println("1. Back to categories");
                 List<ChoiceOption> emptyOptions = Arrays.asList(
-                        new ChoiceOption(1, "Back", "back", "backs", "category", "categories", "return"));
+                        new ChoiceOption(1, "Back", "b", "back", "backs", "category", "categories", "return"));
                 readChoice(sc, "Choose back to return: ", emptyOptions);
-                return;
+                return true;
             }
 
             System.out.println("------------------------------------------------------------------------------------------------");
             System.out.println("1. Add or Remove quantity");
             System.out.println("2. Remove item");
             System.out.println("3. Back to categories");
+            System.out.println("4. Checkout");
 
             // This list contains the available options for the cart menu
             List<ChoiceOption> options = Arrays.asList(
                     new ChoiceOption(1, "Add or Remove quantity", "add", "adds", "increase", "remove quantity", "decrease", "quantity", "quantities", "change", "changes", "update", "updates"),
                     new ChoiceOption(2, "Remove item", "remove", "removes", "delete", "deletes", "item", "items"),
-                    new ChoiceOption(3, "Back", "back", "backs", "category", "categories", "return"));
+                    new ChoiceOption(3, "Back", "b", "back", "backs", "category", "categories", "return"),
+                    new ChoiceOption(4, "Checkout", "Done", "Payment", "Pay", "Receipt", "Claim"));
             ChoiceOption choice = readChoice(sc, "Choose an option: ", options);
 
             if (choice.getNumber() == 1) {
@@ -590,16 +649,34 @@ public class DepStore {
             } else if (choice.getNumber() == 2) {
                 // Removes one whole item line from the cart
                 removeCartItem(sc, cart);
-            } else {
+            } else if (choice.getNumber() == 3) {
                 viewingCart = false;
+            } else {
+                Payment payment = collectPayment(sc, cart);
+                if (payment.isCompleted()) {
+                    receiptHistory.add(new Receipt(receiptHistory.size() + 1, createReceiptItems(cart), payment));
+                    boolean keepRunning = handlePostPaymentOptions(sc, receiptHistory);
+                    cart.clear();
+                    return keepRunning;
+                }
             }
         }
+
+        return true;
     }
 
     // This method allows the user to add or remove quantity for an existing cart item, with stock checks and updates
     private static void addCartQuantity(Scanner sc, List<CartItem> cart) {
         CartItem item = chooseCartItem(sc, cart);
-        int quantity = readInt(sc, "How many more will you add/remove? Use a negative number to remove: ", -100, 100);
+        if (item == null) {
+            return;
+        }
+
+        Integer quantityInput = readIntOrBack(sc, "How many more will you add/remove? Use a negative number to remove, or Back: ", -100, 100);
+        if (quantityInput == null) {
+            return;
+        }
+        int quantity = quantityInput;
 
         if (quantity < 0 && item.getQuantity() + quantity < 0) {
             // Prevents removing more items than what the cart currently has
@@ -633,6 +710,9 @@ public class DepStore {
     // the removed quantity back to the product stock
     private static void removeCartItem(Scanner sc, List<CartItem> cart) {
         CartItem removedItem = chooseCartItem(sc, cart);
+        if (removedItem == null) {
+            return;
+        }
         cart.remove(removedItem);
         // Since item is removed from cart, ibabalik sa stock yung quantity niya
         removedItem.getProduct().addStock(removedItem.getOption(), removedItem.getQuantity());
@@ -649,8 +729,13 @@ public class DepStore {
             // User can choose cart item by number or by product name
             options.add(new ChoiceOption(i + 1, item.getDisplayName(), item.getProduct().getAliases()));
         }
+        System.out.printf("%2d. Back%n", cart.size() + 1);
+        options.add(new ChoiceOption(cart.size() + 1, "Back", "b", "back", "backs", "cart", "return"));
 
         ChoiceOption choice = readChoice(sc, "Choose item number or name: ", options);
+        if (choice.getNumber() == cart.size() + 1) {
+            return null;
+        }
         return cart.get(choice.getNumber() - 1);
     }
 
@@ -685,7 +770,7 @@ public class DepStore {
             // If empty ang cart during checkout, no payment is needed
             return new Payment("None", 0, 0);
         }
-
+        
         System.out.println("\n==================== Payment Summary ====================");
         printPaymentDetailBox(
                 new String[] {"Amount to pay"},
@@ -695,30 +780,99 @@ public class DepStore {
         // This list contains the available payment method options, which are Card or Cash, and their respective aliases for user input
         List<ChoiceOption> paymentOptions = Arrays.asList(
                 new ChoiceOption(1, "Card", "card", "cards", "credit card", "credit cards", "debit card", "debit cards"),
-                new ChoiceOption(2, "Cash", "cash", "money"));
+                new ChoiceOption(2, "Cash", "cash", "money"),
+                new ChoiceOption(3, "Back to Categories", "b", "Back", "Go Back", "Cancel", "Return"));
         System.out.println("\n+----+----------------+");
         System.out.println("| No | Payment Method |");
         System.out.println("+----+----------------+");
         System.out.println("| 1  | Card           |");
         System.out.println("| 2  | Cash           |");
+        System.out.println("| 3  | Back           |");
         System.out.println("+----+----------------+");
-        ChoiceOption paymentChoice = readChoice(sc, "\nPayment method (1/Card or 2/Cash): ", paymentOptions);
+        ChoiceOption paymentChoice = readChoice(sc, "\nPayment method (1/Card or 2/Cash or 3/Back): ", paymentOptions);
 
         if (paymentChoice.getNumber() == 1) {
+            if (!askYesNo(sc, "Are you sure you want to pay by card? (yes/no): ")) {
+                return new Payment("Back", 0, 0);
+            }
             // Card is automatically approved in this simple program
             System.out.println("Card payment approved for " + formatPrice(totalPrice) + ".");
             return new Payment("Card", totalPrice, 0);
+        } else if (paymentChoice.getNumber() == 2) {
+            // Cash payment requires entering the amount paid, and calculates change
+            Integer amountPaid = readPaymentAmount(sc, "Enter cash amount (or Back): ");
+            if (amountPaid == null) {
+                return new Payment("Back", 0, 0);
+            }
+            while (amountPaid < totalPrice) {
+                System.out.println("Insufficient cash. Please enter an amount of at least " + formatPrice(totalPrice) + ".");
+                amountPaid = readPaymentAmount(sc, "Enter cash amount (or Back): ");
+                if (amountPaid == null) {
+                    return new Payment("Back", 0, 0);
+                }
+            }
+            int change = amountPaid - totalPrice;
+            System.out.println("Cash payment accepted. Change: " + formatPrice(change) + ".");
+            return new Payment("Cash", amountPaid, change);
+        } else {
+            // Back to categories option during payment will just return a Payment object with method "Back" so the receipt can show that no payment was made
+            return new Payment("Back", 0, 0);
         }
+    
+        
+    }
 
-        while (true) {
-            // For cash, keep asking until enough yung binayad ng customer
-            int amountPaid = readPaymentAmount(sc, "Amount paid in cash: ");
-            if (amountPaid >= totalPrice) {
-                return new Payment("Cash", amountPaid, amountPaid - totalPrice);
+    private static List<ReceiptItem> createReceiptItems(List<CartItem> cart) {
+        List<ReceiptItem> receiptItems = new ArrayList<>();
+        for (CartItem item : cart) {
+            receiptItems.add(new ReceiptItem(item));
+        }
+        return receiptItems;
+    }
+
+    private static boolean handlePostPaymentOptions(Scanner sc, List<Receipt> receiptHistory) {
+        boolean choosingAfterPayment = true;
+        boolean receiptPrinted = false;
+
+        while (choosingAfterPayment) {
+            System.out.println("\n========== After Payment ==========");
+            List<ChoiceOption> options = new ArrayList<>();
+            int nextOption = 1;
+            int printOption = -1;
+
+            if (!receiptPrinted) {
+                printOption = nextOption;
+                System.out.println(nextOption + ". Print Receipt");
+                options.add(new ChoiceOption(nextOption, "Print Receipt", "print", "receipt", "print receipt"));
+                nextOption++;
             }
 
-            System.out.println("The cash paid is short by " + formatPrice(totalPrice - amountPaid) + ".");
+            int shopAgainOption = nextOption;
+            System.out.println(nextOption + ". Shop Again");
+            options.add(new ChoiceOption(nextOption, "Shop Again", "shop", "again", "continue", "continue shopping"));
+            nextOption++;
+
+            int doneOption = nextOption;
+            System.out.println(nextOption + ". Done");
+            options.add(new ChoiceOption(nextOption, "Done", "finish", "exit", "quit"));
+
+            ChoiceOption choice = readChoice(sc, "Choose an option: ", options);
+
+            if (choice.getNumber() == printOption) {
+                printAllReceipts(receiptHistory);
+                receiptPrinted = true;
+            } else if (choice.getNumber() == shopAgainOption) {
+                System.out.println("\nStarting a new shopping session.");
+                return true;
+            } else if (choice.getNumber() == doneOption) {
+                if (!receiptPrinted) {
+                    System.out.println("Thank you for shopping!");
+                }
+                return false;
+            }
         }
+
+        return false;
     }
 
     // This method prints the cart items in a table format with their details, and also shows the total quantity and 
@@ -763,27 +917,35 @@ public class DepStore {
 
     // This method prints the final receipt with all the cart items and their details, as well as the total quantity, 
     // total price, payment method, amount paid, and change.
-    private static void printReceipt(List<CartItem> cart, Payment payment) {
+    private static void printAllReceipts(List<Receipt> receiptHistory) {
+        System.out.println("\n==================== All Receipts ====================");
+        for (Receipt receipt : receiptHistory) {
+            printReceipt(receipt);
+        }
+        System.out.println("Thank you for shopping!");
+    }
+
+    private static void printReceipt(Receipt receipt) {
         int totalQuantity = 0;
         int totalPrice = 0;
 
-        System.out.println("\n======================== Receipt =======================");
+        System.out.println("\n======================== Receipt #" + receipt.number + " =======================");
         System.out.printf("%-18s %-26s %-18s %5s %12s %12s%n", "Store", "Product", "Choice", "Qty", "Price", "Subtotal");
         System.out.println("-------------------------------------------------------------------------------------------");
 
-        for (CartItem item : cart) {
+        for (ReceiptItem item : receipt.items) {
             // Receipt totals are recomputed here para final summary matches the printed items
-            totalQuantity += item.getQuantity();
-            totalPrice += item.getSubtotal();
+            totalQuantity += item.quantity;
+            totalPrice += item.subtotal;
 
             System.out.printf(
                     "%-18s %-26s %-18s %5d %12s %12s%n",
-                    item.getProduct().getStoreName(),
-                    item.getProduct().getName(),
-                    item.getChoiceDisplay(),
-                    item.getQuantity(),
-                    formatPrice(item.getProduct().getPrice()),
-                    formatPrice(item.getSubtotal()));
+                    item.storeName,
+                    item.productName,
+                    item.choice,
+                    item.quantity,
+                    formatPrice(item.price),
+                    formatPrice(item.subtotal));
         }
 
         System.out.println("-------------------------------------------------------------------------------------------");
@@ -791,9 +953,9 @@ public class DepStore {
         System.out.println("Total price: " + formatPrice(totalPrice));
         printPaymentDetailBox(
                 new String[] {"Payment method", "Amount paid", "Exchange"},
-                new String[] {payment.getMethod(), formatPrice(payment.getAmountPaid()), formatPrice(payment.getChange())});
-        System.out.println("Thank you for shopping!");
-    }
+                new String[] {receipt.payment.getMethod(), formatPrice(receipt.payment.getAmountPaid()), formatPrice(receipt.payment.getChange())});
+        }
+
 
     private static void printPaymentDetailBox(String[] labels, String[] values) {
         int labelWidth = 14;
@@ -836,6 +998,10 @@ public class DepStore {
     private static String formatPrice(int price) {
         // Formats prices like P1,299 instead of plain 1299
         return CURRENCY + String.format("%,d", price);
+    }
+
+    private static String formatStock(int stock) {
+        return stock == 0 ? "Out of stock" : String.valueOf(stock);
     }
 
     // This method normalizes user input for easier comparison by converting to lowercase, replacing symbols, 
@@ -901,6 +1067,16 @@ public class DepStore {
     }
 
     private static String[] optionAliases(String name) {
+        String normalized = normalizeChoice(name);
+
+        if (normalized.endsWith("kg")) {
+            return alias(normalized.replace("kg", " kg"));
+        }
+
+        if (normalized.endsWith("oz")) {
+            return alias(normalized.replace("oz", " oz"), normalized.replace(" oz", " ounce"), normalized.replace(" oz", " ounces"));
+        }
+
         // Adds word aliases for sizes so user can type "medium" instead of just "M"
         if (name.equalsIgnoreCase("XS")) {
             return alias("extra small", "x small");
@@ -1021,6 +1197,40 @@ public class DepStore {
 
         int getChange() {
             return change;
+        }
+
+        boolean isCompleted() {
+            return !method.equals("Back") && !method.equals("None");
+        }
+    }
+
+    private static class Receipt {
+        private final int number;
+        private final List<ReceiptItem> items;
+        private final Payment payment;
+
+        Receipt(int number, List<ReceiptItem> items, Payment payment) {
+            this.number = number;
+            this.items = items;
+            this.payment = payment;
+        }
+    }
+
+    private static class ReceiptItem {
+        private final String storeName;
+        private final String productName;
+        private final String choice;
+        private final int quantity;
+        private final int price;
+        private final int subtotal;
+
+        ReceiptItem(CartItem item) {
+            this.storeName = item.getProduct().getStoreName();
+            this.productName = item.getProduct().getName();
+            this.choice = item.getChoiceDisplay();
+            this.quantity = item.getQuantity();
+            this.price = item.getProduct().getPrice();
+            this.subtotal = item.getSubtotal();
         }
     }
 
@@ -1177,7 +1387,19 @@ public class DepStore {
 
         String getStockDisplay() {
             // Product table shows "100 each" when every option has separate stock
-            return hasOptions() ? "100 each" : String.valueOf(stock);
+            return hasOptions() ? getOptionStockDisplay() : formatStock(stock);
+        }
+
+        private String getOptionStockDisplay() {
+            boolean allOutOfStock = true;
+            for (ProductOption option : options) {
+                if (option.getStock() > 0) {
+                    allOutOfStock = false;
+                    break;
+                }
+            }
+
+            return allOutOfStock ? "Out of stock" : "100 each";
         }
 
         String[] getAliases() {
@@ -1429,6 +1651,10 @@ public class DepStore {
         private Product sport(String storeName, String name, int price, String... aliases) {
             // Regular sports products do not need options
             return product(storeName, name, price, aliases);
+        }
+
+        private Product tumbler(String storeName, int price) {
+            return product(storeName, "Tumbler", "Size", TUMBLER_SIZES, price, "water bottle", "bottle", "tumblers");
         }
 
         private Product toy(String storeName, String name, int price, String... aliases) {
@@ -1718,7 +1944,7 @@ public class DepStore {
                     sportWeighted(storeName, "Dumbbells", 1299, "dumbbell", "weights"),
                     sportWeighted(storeName, "Kettlebell", 1199, "kettlebells"),
                     sportWeighted(storeName, "Medicine ball", 1099, "medicine balls"),
-                    sport(storeName, "Water bottle", 299, "bottle"));
+                    tumbler(storeName, 299));
         }
 
         private void addToys() {
