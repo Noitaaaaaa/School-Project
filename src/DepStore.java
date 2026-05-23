@@ -16,7 +16,7 @@ public class DepStore {
     private static final String[] WEIGHT_CHOICES = {"2kg", "5kg", "10kg", "15kg", "20kg"};
     private static final String[] TUMBLER_SIZES = {"16 oz", "20 oz", "24 oz", "32 oz", "40 oz"};
 
-    public static void main(String[] args) {    
+    public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         Store store = new Store();
         List<CartItem> cart = new ArrayList<>();
@@ -34,68 +34,68 @@ public class DepStore {
             // Shopping will be false once na nag checkout ang user
             boolean shopping = true;
             while (shopping) {
-            MenuChoice choice = chooseMenuOption(sc, store.getCategories());
+                MenuChoice choice = chooseMenuOption(sc, store.getCategories());
 
-            // Once na napili ang Cart mago-open yung cart para makita ng user ang laman ng cart and pwede i manage
-            if (choice.isCart()) {    
-                running = openCart(sc, cart, receiptHistory);
-                if (!running) {
-                    shopping = false;
-                }
-                continue;
-            }
-
-             // Once na nakapili ng category pupunta na sa store menu para pumili ang user
-            Category category = store.getCategories().get(choice.getIndex());
-            boolean choosingStore = true;
-            // When choosingStore is true magsisimula na ang store menu loop
-            while (choosingStore) {     
-                StoreBrand storeBrand = chooseStoreBrand(sc, category);
-                if (storeBrand == null) {
-                    choosingStore = false;
+                // Once na napili ang Cart mago-open yung cart para makita ng user ang laman ng cart and pwede i manage
+                if (choice.isCart()) {
+                    running = openCart(sc, cart, receiptHistory);
+                    if (!running) {
+                        shopping = false;
+                    }
                     continue;
                 }
-                
-                boolean choosingFromStore = true;
-                // Once na naging true ang choosingFromStore dito na magsisimula ang loop ng pagpili ng product
-                while (choosingFromStore) { 
-                    Product product = chooseProduct(sc, category, storeBrand);
-                    if (product == null) {
-                        choosingFromStore = false;
+
+                // Once na nakapili ng category pupunta na sa store menu para pumili ang user
+                Category category = store.getCategories().get(choice.getIndex());
+                boolean choosingStore = true;
+                // When choosingStore is true magsisimula na ang store menu loop
+                while (choosingStore) {
+                    StoreBrand storeBrand = chooseStoreBrand(sc, category);
+                    if (storeBrand == null) {
+                        choosingStore = false;
                         continue;
                     }
 
-                    if (!product.hasOptions() && product.getStock() == 0) {
-                        printStockMessage(product); // If product is out of stock mag pri-print sya na wala ng stock 
-                        continue;
-                    }
-
-                    ProductOption option = null;
-                    // If may stock naman dito magsisimula yung chooseProductOption para pumili yung user ng options 
-                     // Options na katulad ng mga sizes
-                    if (product.hasOptions()) {                         
-                        option = chooseProductOption(sc, product); 
-                        if (option == null) {
+                    boolean choosingFromStore = true;
+                    // Once na naging true ang choosingFromStore dito na magsisimula ang loop ng pagpili ng product
+                    while (choosingFromStore) {
+                        Product product = chooseProduct(sc, category, storeBrand);
+                        if (product == null) {
+                            choosingFromStore = false;
                             continue;
                         }
-                    }
 
-                    Integer quantity = readQuantity(sc, "\nHow many " + product.getDisplayName(option) + " will you buy? (or Back): ");
-                    if (quantity == null) {
-                        continue;
-                    }
+                        if (!product.hasOptions() && product.getStock() == 0) {
+                            printStockMessage(product); // If product is out of stock mag pri-print sya na wala ng stock
+                            continue;
+                        }
 
-                    // After addToCart mag pri-print ng add to cart and babalik sa Category Menu
-                    if (addToCart(cart, product, option, quantity)) { 
-                        System.out.println("\n" + quantity + " x " + product.getDisplayName(option) + " added to your cart.");
-                        choosingFromStore = false;
-                        choosingStore = false;
+                        ProductOption option = null;
+                        // If may stock naman dito magsisimula yung chooseProductOption para pumili yung user ng options
+                        // Options na katulad ng mga sizes
+                        if (product.hasOptions()) {
+                            option = chooseProductOption(sc, product);
+                            if (option == null) {
+                                continue;
+                            }
+                        }
+
+                        Integer quantity = readQuantity(sc, "\nHow many " + product.getDisplayName(option) + " will you buy? (or Back): ");
+                        if (quantity == null) {
+                            continue;
+                        }
+
+                        // After addToCart mag pri-print ng add to cart and babalik sa Category Menu
+                        if (addToCart(cart, product, option, quantity)) {
+                            System.out.println("\n" + quantity + " x " + product.getDisplayName(option) + " added to your cart.");
+                            choosingFromStore = false;
+                            choosingStore = false;
+                        }
                     }
                 }
             }
         }
-        }
- 
+
         sc.close();
     }
 
@@ -108,7 +108,7 @@ public class DepStore {
         List<ChoiceOption> options = new ArrayList<>();
 
         System.out.println("\n========== Categories ==========");
-            // A for loop is used to print each category with its number and to add it as a valid choice with its name and aliases
+        // A for loop is used to print each category with its number and to add it as a valid choice with its name and aliases
         for (int i = 0; i < categories.size(); i++) {
             Category category = categories.get(i);
             System.out.printf("%2d. %s%n", i + 1, category.getName());
@@ -116,7 +116,7 @@ public class DepStore {
             options.add(new ChoiceOption(i + 1, category.getName(), category.getAliases()));
         }
 
-        System.out.println("\n========== Store Options ==========");
+        System.out.println("\n========== Cart ==========");
         // Cart is added after the categories, so its number depends on how many categories there are.
         System.out.printf("%2d. Cart%n", categories.size() + 1);
         // Adding Cart as a valid choice with its number and word aliases.
@@ -124,7 +124,7 @@ public class DepStore {
 
         // Dito binabasa yung final menu choice ng user
         // User can choose a category by number or name, or choose cart by number or name
-        ChoiceOption choice = readChoice(sc, "\nChoose a category or cart: ", options); 
+        ChoiceOption choice = readChoice(sc, "\nChoose a category or cart: ", options);
 
         // If the user chose categories.size() + 1 the cart will open the cart menu,
         if (choice.getNumber() == categories.size() + 1) {
@@ -182,7 +182,7 @@ public class DepStore {
             Product product = products.get(i);
 
             // If showAvailableChoices is true, it means at least one product has options,
-            //  so an extra column is printed to show the available options for each product. 
+            // so an extra column is printed to show the available options for each product.
             // Otherwise, the table is simpler without that column.
             // This is mostly seen in the Clothes product list with the size options
             if (showAvailableChoices) {
@@ -194,8 +194,7 @@ public class DepStore {
                         product.getShortOptionsDisplay(),
                         formatPrice(product.getPrice()),
                         product.getStockDisplay());
-
-            // If showAvailableChoices is false, it means none of the products have options, 
+            // If showAvailableChoices is false, it means none of the products have options,
             // so the table doesn't include the available choices column and just shows the basic product info.
             } else {
                 System.out.printf(
@@ -238,7 +237,6 @@ public class DepStore {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -457,66 +455,35 @@ public class DepStore {
     private static int singleWordNumber(String word) {
         // Converts single number words to their integer value
         switch (word) {
-            case "zero":
-                return 0;
-            case "one":
-                return 1;
-            case "two":
-                return 2;
-            case "three":
-                return 3;
-            case "four":
-                return 4;
-            case "five":
-                return 5;
-            case "six":
-                return 6;
-            case "seven":
-                return 7;
-            case "eight":
-                return 8;
-            case "nine":
-                return 9;
-            case "ten":
-                return 10;
-            case "eleven":
-                return 11;
-            case "twelve":
-                return 12;
-            case "thirteen":
-                return 13;
-            case "fourteen":
-                return 14;
-            case "fifteen":
-                return 15;
-            case "sixteen":
-                return 16;
-            case "seventeen":
-                return 17;
-            case "eighteen":
-                return 18;
-            case "nineteen":
-                return 19;
-            case "twenty":
-                return 20;
-            case "thirty":
-                return 30;
-            case "forty":
-                return 40;
-            case "fifty":
-                return 50;
-            case "sixty":
-                return 60;
-            case "seventy":
-                return 70;
-            case "eighty":
-                return 80;
-            case "ninety":
-                return 90;
-            case "extra small":
-                return -1;
-            default:
-                return -1;
+            case "zero":   return 0;
+            case "one":    return 1;
+            case "two":    return 2;
+            case "three":  return 3;
+            case "four":   return 4;
+            case "five":   return 5;
+            case "six":    return 6;
+            case "seven":  return 7;
+            case "eight":  return 8;
+            case "nine":   return 9;
+            case "ten":    return 10;
+            case "eleven": return 11;
+            case "twelve": return 12;
+            case "thirteen": return 13;
+            case "fourteen": return 14;
+            case "fifteen":  return 15;
+            case "sixteen":  return 16;
+            case "seventeen": return 17;
+            case "eighteen":  return 18;
+            case "nineteen":  return 19;
+            case "twenty": return 20;
+            case "thirty": return 30;
+            case "forty":  return 40;
+            case "fifty":  return 50;
+            case "sixty":  return 60;
+            case "seventy": return 70;
+            case "eighty":  return 80;
+            case "ninety":  return 90;
+            default: return -1;
         }
     }
 
@@ -564,7 +531,7 @@ public class DepStore {
         return true;
     }
 
-    // This method opens the cart menu where the user can see their cart items and choose to add/remove quantity, 
+    // This method opens the cart menu where the user can see their cart items and choose to add/remove quantity,
     // remove items, or go back to categories
     private static boolean openCart(Scanner sc, List<CartItem> cart, List<Receipt> receiptHistory) {
         boolean viewingCart = true;
@@ -659,7 +626,7 @@ public class DepStore {
         System.out.println("Cart updated for " + item.getDisplayName() + ".");
     }
 
-    // This method allows the user to remove an entire cart item, with stock updates to return 
+    // This method allows the user to remove an entire cart item, with stock updates to return
     // the removed quantity back to the product stock
     private static void removeCartItem(Scanner sc, List<CartItem> cart) {
         CartItem removedItem = chooseCartItem(sc, cart);
@@ -673,7 +640,7 @@ public class DepStore {
         System.out.println(removedItem.getDisplayName() + " removed from your cart.");
     }
 
-    // This method allows the user to choose a cart item by number or name for updating quantity or removing, 
+    // This method allows the user to choose a cart item by number or name for updating quantity or removing,
     // similar to previous choice methods
     private static CartItem chooseCartItem(Scanner sc, List<CartItem> cart) {
         List<ChoiceOption> options = new ArrayList<>();
@@ -697,7 +664,7 @@ public class DepStore {
         printStockMessage(product, null);
     }
 
-    // This method prints a stock message when the user tries to buy more than the available stock, or if the stock is already zero, 
+    // This method prints a stock message when the user tries to buy more than the available stock, or if the stock is already zero,
     // with option details if applicable
     private static void printStockMessage(Product product, ProductOption option) {
         if (product.getStock(option) == 0) {
@@ -714,7 +681,7 @@ public class DepStore {
     // Payment and Display Methods
     // =========================
 
-    // This method handles the checkout flow where the user chooses payment method, enters payment amount if cash, 
+    // This method handles the checkout flow where the user chooses payment method, enters payment amount if cash,
     // and returns a Payment object with the details for receipt printing
     private static Payment collectPayment(Scanner sc, List<CartItem> cart) {
         int totalPrice = calculateTotalPrice(cart);
@@ -723,11 +690,11 @@ public class DepStore {
             // If empty ang cart during checkout, no payment is needed
             return new Payment("None", 0, 0);
         }
-        
+
         System.out.println("\n==================== Payment Summary ====================");
         printPaymentDetailBox(
-                new String[] {"Amount to pay"},
-                new String[] {formatPrice(totalPrice)});
+                new String[]{"Amount to pay"},
+                new String[]{formatPrice(totalPrice)});
         System.out.println("=========================================================");
 
         // This list contains the available payment method options, which are Card or Cash, and their respective aliases for user input
@@ -768,11 +735,9 @@ public class DepStore {
             System.out.println("Cash payment accepted. Change: " + formatPrice(change) + ".");
             return new Payment("Cash", amountPaid, change);
         } else {
-            // Back to categories option during payment will just return a Payment object with method "Back" so the receipt can show that no payment was made
+            // Back to categories option during payment will just return a Payment object with method "Back"
             return new Payment("Back", 0, 0);
         }
-    
-        
     }
 
     private static List<ReceiptItem> createReceiptItems(List<CartItem> cart) {
@@ -828,7 +793,7 @@ public class DepStore {
         return false;
     }
 
-    // This method prints the cart items in a table format with their details, and also shows the total quantity and 
+    // This method prints the cart items in a table format with their details, and also shows the total quantity and
     // total price at the bottom.
     private static void printCart(List<CartItem> cart) {
         int totalQuantity = 0;
@@ -868,7 +833,7 @@ public class DepStore {
         System.out.println("Total price: " + formatPrice(totalPrice));
     }
 
-    // This method prints the final receipt with all the cart items and their details, as well as the total quantity, 
+    // This method prints the final receipt with all the cart items and their details, as well as the total quantity,
     // total price, payment method, amount paid, and change.
     private static void printAllReceipts(List<Receipt> receiptHistory) {
         System.out.println("\n==================== All Receipts ====================");
@@ -905,10 +870,9 @@ public class DepStore {
         System.out.println("Total items: " + totalQuantity);
         System.out.println("Total price: " + formatPrice(totalPrice));
         printPaymentDetailBox(
-                new String[] {"Payment method", "Amount paid", "Exchange"},
-                new String[] {receipt.payment.getMethod(), formatPrice(receipt.payment.getAmountPaid()), formatPrice(receipt.payment.getChange())});
-        }
-
+                new String[]{"Payment method", "Amount paid", "Exchange"},
+                new String[]{receipt.payment.getMethod(), formatPrice(receipt.payment.getAmountPaid()), formatPrice(receipt.payment.getChange())});
+    }
 
     private static void printPaymentDetailBox(String[] labels, String[] values) {
         int labelWidth = 14;
@@ -949,7 +913,6 @@ public class DepStore {
 
     // This method formats the price as currency with commas and a currency symbol, like P1,299 instead of just 1299
     private static String formatPrice(int price) {
-        // Formats prices like P1,299 instead of plain 1299
         return CURRENCY + String.format("%,d", price);
     }
 
@@ -957,7 +920,7 @@ public class DepStore {
         return stock == 0 ? "Out of stock" : String.valueOf(stock);
     }
 
-    // This method normalizes user input for easier comparison by converting to lowercase, replacing symbols, 
+    // This method normalizes user input for easier comparison by converting to lowercase, replacing symbols,
     // and converting plurals to singulars, so that inputs like "Shirts", "shirt", or "Shirt!" can all match the same product choice
     private static String normalizeChoice(String text) {
         // Makes user input easier to compare by lowering case and removing symbols
@@ -970,7 +933,6 @@ public class DepStore {
         String[] words = cleaned.split("\\s+");
         StringBuilder normalized = new StringBuilder();
         for (String word : words) {
-            // Converts plural words to simple singular words, like shirts to shirt
             if (normalized.length() > 0) {
                 normalized.append(' ');
             }
@@ -979,39 +941,31 @@ public class DepStore {
         return normalized.toString();
     }
 
-    // This method converts plural words to singular words for better matching of user input to product 
-    // choices, so that "dresses" can match "dress", "boxes" can match "box", and "shirts" can match "shirt"
+    // This method converts plural words to singular words for better matching of user input to product choices
     private static String singularWord(String word) {
-        // Small plural fixer para "dresses", "boxes", and "shirts" can match singular aliases
         if (word.length() > 3 && word.endsWith("ies")) {
             return word.substring(0, word.length() - 3) + "y";
         }
-        // "sses" is a special case para hindi siya ma-singularize as "s"
         if (word.length() > 4 && word.endsWith("sses")) {
             return word.substring(0, word.length() - 2);
         }
-        // "ches", "shes", "xes", and "zes" are common plural endings that can be singularized by removing the "es"
         if (word.length() > 4
                 && (word.endsWith("ches") || word.endsWith("shes") || word.endsWith("xes") || word.endsWith("zes"))) {
             return word.substring(0, word.length() - 2);
         }
-        // For regular plurals that just end with "s", the singular form can be obtained by removing the last "s"
         if (word.length() > 2 && word.endsWith("s") && !word.endsWith("ss")) {
             return word.substring(0, word.length() - 1);
         }
-
         return word;
     }
-    // This method is a simple helper to create an array of aliases from a variable number 
-    // of string arguments, used for product options and choices
+
+    // This method is a simple helper to create an array of aliases from a variable number of string arguments
     private static String[] alias(String... aliases) {
         return aliases;
     }
 
-    // This method creates an array of ProductOption objects from an array of option names, 
-    //  assigning aliases and starting stock to each option,
+    // This method creates an array of ProductOption objects from an array of option names
     private static ProductOption[] choices(String... names) {
-        // Converts simple text choices into ProductOption objects with their own stock
         ProductOption[] options = new ProductOption[names.length];
         for (int i = 0; i < names.length; i++) {
             options[i] = new ProductOption(names[i], optionAliases(names[i]));
@@ -1031,24 +985,12 @@ public class DepStore {
         }
 
         // Adds word aliases for sizes so user can type "medium" instead of just "M"
-        if (name.equalsIgnoreCase("XS")) {
-            return alias("extra small", "x small");
-        }
-        if (name.equalsIgnoreCase("S")) {
-            return alias("small");
-        }
-        if (name.equalsIgnoreCase("M")) {
-            return alias("medium");
-        }
-        if (name.equalsIgnoreCase("L")) {
-            return alias("large");
-        }
-        if (name.equalsIgnoreCase("XL")) {
-            return alias("extra large", "x large");
-        }
-        if (name.equalsIgnoreCase("XXL")) {
-            return alias("double extra large", "2xl", "two xl");
-        }
+        if (name.equalsIgnoreCase("XS"))  return alias("extra small", "x small");
+        if (name.equalsIgnoreCase("S"))   return alias("small");
+        if (name.equalsIgnoreCase("M"))   return alias("medium");
+        if (name.equalsIgnoreCase("L"))   return alias("large");
+        if (name.equalsIgnoreCase("XL"))  return alias("extra large", "x large");
+        if (name.equalsIgnoreCase("XXL")) return alias("double extra large", "2xl", "two xl");
         return alias();
     }
 
@@ -1056,7 +998,7 @@ public class DepStore {
     // Helper Classes
     // =========================
 
-    // This class represents a choice option in the menus, which can be selected by number or by matching any of its aliases, 
+    // This class represents a choice option in the menus, which can be selected by number or by matching any of its aliases,
     // allowing for flexible user input
     private static class ChoiceOption {
         private final int number;
@@ -1088,8 +1030,7 @@ public class DepStore {
         }
     }
 
-    // This class represents a menu choice, which can be a category or cart option,
-    // and stores the relevant index or action type for the main loop to handle the user's navigation through the menus
+    // This class represents a menu choice, which can be a category or cart option
     private static class MenuChoice {
         private final int index;
         private final String action;
@@ -1100,12 +1041,10 @@ public class DepStore {
         }
 
         static MenuChoice category(int index) {
-            // Category keeps the selected category index
             return new MenuChoice(index, "category");
         }
 
         static MenuChoice cart() {
-            // Cart uses an action name instead of category index
             return new MenuChoice(-1, "cart");
         }
 
@@ -1118,31 +1057,21 @@ public class DepStore {
         }
     }
 
-    // This class represents a payment made by the user, storing the payment method, amount paid, and change,
-    //  so that the receipt can display the payment details after checkout
+    // This class represents a payment made by the user, storing the payment method, amount paid, and change
     private static class Payment {
         private final String method;
         private final int amountPaid;
         private final int change;
 
         Payment(String method, int amountPaid, int change) {
-            // Stores payment details so receipt can print them later
             this.method = method;
             this.amountPaid = amountPaid;
             this.change = change;
         }
 
-        String getMethod() {
-            return method;
-        }
-
-        int getAmountPaid() {
-            return amountPaid;
-        }
-
-        int getChange() {
-            return change;
-        }
+        String getMethod()    { return method; }
+        int getAmountPaid()   { return amountPaid; }
+        int getChange()       { return change; }
 
         boolean isCompleted() {
             return !method.equals("Back") && !method.equals("None");
@@ -1179,8 +1108,7 @@ public class DepStore {
         }
     }
 
-    // This class represents a product option, which has its own name, aliases for user input, and separate stock quantity,
-    //  allowing products to have different choices like sizes or SPF levels with their own stock management
+    // This class represents a product option, which has its own name, aliases for user input, and separate stock quantity
     private static class ProductOption {
         private static final int STARTING_STOCK = 100;
 
@@ -1191,205 +1119,200 @@ public class DepStore {
         ProductOption(String name, String... aliases) {
             this.name = name;
             this.aliases = aliases;
-            // Each option like Medium or 50 SPF starts with its own stock
             this.stock = STARTING_STOCK;
         }
 
-        String getName() {
-            return name;
-        }
+        String getName() { return name; }
 
         String[] getAliases() {
             List<String> names = new ArrayList<>();
             names.add(name);
-            // Adds the option's real name plus extra aliases like "medium"
             names.addAll(Arrays.asList(aliases));
             return names.toArray(new String[0]);
         }
 
-        int getStock() {
-            return stock;
-        }
+        int getStock() { return stock; }
 
         boolean removeStock(int quantity) {
-            if (quantity > stock) {
-                // Returning false tells the caller na kulang ang stock
-                return false;
-            }
-
-            // Stock is reduced only after passing the stock check
+            if (quantity > stock) return false;
             stock -= quantity;
             return true;
         }
 
         void addStock(int quantity) {
             stock += quantity;
-            if (stock > STARTING_STOCK) {
-                // Stock should not go above the original starting stock
-                stock = STARTING_STOCK;
-            }
+            if (stock > STARTING_STOCK) stock = STARTING_STOCK;
         }
     }
 
-    // This class represents a product sold in the store, which has a name, price, stock quantity, 
-    // and optional choices like sizes or SPF levels, and methods to manage stock and display product 
-    // information, allowing the main program to handle products with or without options in a consistent way
-    private static class Product {
-        private static final int STARTING_STOCK = 100;
+    // =========================
+    // Product Class Hierarchy (Inheritance + Polymorphism)
+    // =========================
 
+    // Abstract base class — holds only the fields shared by ALL products
+    private static abstract class Product {
         private final String storeName;
         private final String name;
-        private final String optionLabel;
-        private final List<ProductOption> options;
         private final int price;
-        private final String[] aliases;
-        private int stock;
-        // For products without options, stock is managed at the product level. For products with options, 
-        // stock is managed at the option level, and the product's own stock is not used for purchases.
-        Product(String storeName, String name, String optionLabel, ProductOption[] options, int price, String... aliases) {
+        protected final String[] aliases;
+
+        Product(String storeName, String name, int price, String... aliases) {
             this.storeName = storeName;
             this.name = name;
-            this.optionLabel = optionLabel;
-            // Options are stored in a List para madaling i-loop sa menus
-            this.options = new ArrayList<>(Arrays.asList(options));
             this.price = price;
             this.aliases = aliases;
-            this.stock = STARTING_STOCK;
         }
 
-        String getStoreName() {
-            return storeName;
-        }
-
-        String getName() {
-            return name;
-        }
+        // Shared methods that every product has
+        String getStoreName() { return storeName; }
+        String getName()      { return name; }
+        int getPrice()        { return price; }
 
         String getDisplayName() {
             return storeName + " " + name;
-        }
-
-        String getDisplayName(ProductOption option) {
-            if (option == null) {
-                // Products without size/type just use store + product name
-                return getDisplayName();
-            }
-
-            // Products with options include the selected choice in the display name
-            return getDisplayName() + " (" + optionLabel + ": " + option.getName() + ")";
-        }
-
-        String getOptionLabel() {
-            return optionLabel;
-        }
-
-        String getOptionLabelDisplay() {
-            return hasOptions() ? optionLabel : "-";
-        }
-
-        List<ProductOption> getOptions() {
-            return options;
-        }
-
-        boolean hasOptions() {
-            // True kapag product has choices like Size or Weight
-            return !options.isEmpty();
-        }
-
-        String getShortOptions() {
-            StringBuilder text = new StringBuilder();
-            for (int i = 0; i < options.size(); i++) {
-                // Builds display text like S, M, L, XL
-                if (i > 0) {
-                    text.append(", ");
-                }
-                text.append(options.get(i).getName());
-            }
-            return text.toString();
-        }
-
-        String getShortOptionsDisplay() {
-            return hasOptions() ? getShortOptions() : "-";
-        }
-
-        int getPrice() {
-            return price;
-        }
-
-        int getStock() {
-            return stock;
-        }
-
-        int getStock(ProductOption option) {
-            if (option == null) {
-                // Products without options use the product's own stock
-                return stock;
-            }
-
-            // Products with options use the selected option's stock
-            return option.getStock();
-        }
-
-        String getStockDisplay() {
-            // Product table shows "100 each" when every option has separate stock
-            return hasOptions() ? getOptionStockDisplay() : formatStock(stock);
-        }
-
-        private String getOptionStockDisplay() {
-            boolean allOutOfStock = true;
-            for (ProductOption option : options) {
-                if (option.getStock() > 0) {
-                    allOutOfStock = false;
-                    break;
-                }
-            }
-
-            return allOutOfStock ? "Out of stock" : "100 each";
         }
 
         String[] getAliases() {
             List<String> names = new ArrayList<>();
             names.add(name);
             names.add(storeName + " " + name);
-            // Adds extra names so user can type shortcuts like shirt, shoes, or laptop
             names.addAll(Arrays.asList(aliases));
             return names.toArray(new String[0]);
         }
 
+        // Abstract methods — each subclass provides its own implementation (POLYMORPHISM)
+        abstract boolean hasOptions();
+        abstract String getOptionLabel();
+        abstract String getOptionLabelDisplay();
+        abstract List<ProductOption> getOptions();
+        abstract String getShortOptionsDisplay();
+        abstract String getDisplayName(ProductOption option);
+        abstract String getStockDisplay();
+        abstract int getStock();
+        abstract int getStock(ProductOption option);
+        abstract boolean removeStock(ProductOption option, int quantity);
+        abstract void addStock(ProductOption option, int quantity);
+    }
+
+    // Subclass for products WITH size/SPF/shade/weight options (clothing, shoes, beauty, sports)
+    // Overrides all abstract methods with option-aware behavior — POLYMORPHISM
+    private static class OptionedProduct extends Product {
+        private final String optionLabel;
+        private final List<ProductOption> options;
+
+        OptionedProduct(String storeName, String name, String optionLabel, ProductOption[] options, int price, String... aliases) {
+            super(storeName, name, price, aliases);
+            this.optionLabel = optionLabel;
+            this.options = new ArrayList<>(Arrays.asList(options));
+        }
+
+        @Override boolean hasOptions()            { return true; }
+        @Override String getOptionLabel()         { return optionLabel; }
+        @Override String getOptionLabelDisplay()  { return optionLabel; }
+        @Override List<ProductOption> getOptions(){ return options; }
+
+        @Override
+        String getShortOptionsDisplay() {
+            StringBuilder text = new StringBuilder();
+            for (int i = 0; i < options.size(); i++) {
+                if (i > 0) text.append(", ");
+                text.append(options.get(i).getName());
+            }
+            return text.toString();
+        }
+
+        @Override
+        String getDisplayName(ProductOption option) {
+            if (option == null) return getDisplayName();
+            return getDisplayName() + " (" + optionLabel + ": " + option.getName() + ")";
+        }
+
+        @Override
+        String getStockDisplay() {
+            // Shows "100 each" if at least one option has stock, otherwise "Out of stock"
+            for (ProductOption o : options) {
+                if (o.getStock() > 0) return "100 each";
+            }
+            return "Out of stock";
+        }
+
+        @Override int getStock()                         { return 0; }
+        @Override int getStock(ProductOption option)     { return option == null ? 0 : option.getStock(); }
+
+        @Override
         boolean removeStock(ProductOption option, int quantity) {
-            if (option != null) {
-                // If product has a selected option, stock is removed from that option only
-                return option.removeStock(quantity);
-            }
+            // Stock is removed from the selected option only
+            return option.removeStock(quantity);
+        }
 
-            if (quantity > stock) {
-                // Returning false means the requested quantity is too high
-                return false;
-            }
+        @Override
+        void addStock(ProductOption option, int quantity) {
+            // Returned quantity goes back to the exact option
+            option.addStock(quantity);
+        }
 
-            // For products without options, reduce the main product stock
+        @Override
+        String[] getAliases() {
+            List<String> names = new ArrayList<>();
+            names.add(getName());
+            names.add(getStoreName() + " " + getName());
+            names.addAll(Arrays.asList(aliases));
+            return names.toArray(new String[0]);
+        }
+    }
+
+    // Subclass for products WITHOUT options (electronics, home, toys, simple sports)
+    // Overrides all abstract methods with simple stock behavior — POLYMORPHISM
+    private static class SimpleProduct extends Product {
+        private static final int STARTING_STOCK = 100;
+        private int stock;
+
+        SimpleProduct(String storeName, String name, int price, String... aliases) {
+            super(storeName, name, price, aliases);
+            this.stock = STARTING_STOCK;
+        }
+
+        @Override boolean hasOptions()            { return false; }
+        @Override String getOptionLabel()         { return ""; }
+        @Override String getOptionLabelDisplay()  { return "-"; }
+        @Override List<ProductOption> getOptions(){ return new ArrayList<>(); }
+        @Override String getShortOptionsDisplay() { return "-"; }
+
+        @Override
+        String getDisplayName(ProductOption option) {
+            // Simple products ignore the option parameter since they have none
+            return getDisplayName();
+        }
+
+        @Override String getStockDisplay()              { return formatStock(stock); }
+        @Override int getStock()                        { return stock; }
+        @Override int getStock(ProductOption option)    { return stock; }
+
+        @Override
+        boolean removeStock(ProductOption option, int quantity) {
+            // Stock is managed at the product level
+            if (quantity > stock) return false;
             stock -= quantity;
             return true;
         }
 
+        @Override
         void addStock(ProductOption option, int quantity) {
-            if (option != null) {
-                // Returned cart items go back to the exact option stock
-                option.addStock(quantity);
-                return;
-            }
-
             stock += quantity;
-            if (stock > STARTING_STOCK) {
-                // Prevents stock from going above the starting value
-                stock = STARTING_STOCK;
-            }
+            if (stock > STARTING_STOCK) stock = STARTING_STOCK;
+        }
+
+        @Override
+        String[] getAliases() {
+            List<String> names = new ArrayList<>();
+            names.add(getName());
+            names.add(getStoreName() + " " + getName());
+            names.addAll(Arrays.asList(aliases));
+            return names.toArray(new String[0]);
         }
     }
 
-    // This class represents a store brand, which has a name, aliases for user input, and a list of products sold under that brand,
-    //  allowing the store to group products by brand and let users choose a brand when browsing 
-    // products, with flexible input matching through aliases
+    // This class represents a store brand, which has a name, aliases, and a list of products
     private static class StoreBrand {
         private final String name;
         private final String[] aliases;
@@ -1398,28 +1321,22 @@ public class DepStore {
         StoreBrand(String name, String[] aliases, Product... products) {
             this.name = name;
             this.aliases = aliases;
-            // Products are grouped under one store/brand
             this.products = new ArrayList<>(Arrays.asList(products));
         }
 
-        String getName() {
-            return name;
-        }
+        String getName() { return name; }
 
         String[] getAliases() {
             List<String> names = new ArrayList<>();
             names.add(name);
-            // Store aliases help match alternate spellings or shorter names
             names.addAll(Arrays.asList(aliases));
             return names.toArray(new String[0]);
         }
 
-        List<Product> getProducts() {
-            return products;
-        }
+        List<Product> getProducts() { return products; }
     }
 
-    // This class represents like the StoreBrand class represents the Categories
+    // This class represents a category, which groups store brands together
     private static class Category {
         private final String name;
         private final String[] aliases;
@@ -1428,73 +1345,48 @@ public class DepStore {
         Category(String name, String[] aliases, StoreBrand... storeBrands) {
             this.name = name;
             this.aliases = aliases;
-            // Store brands are grouped under one category
             this.storeBrands = new ArrayList<>(Arrays.asList(storeBrands));
         }
 
-        String getName() {
-            return name;
-        }
+        String getName() { return name; }
 
         String[] getAliases() {
             List<String> names = new ArrayList<>();
             names.add(name);
-            // Category aliases let the user type words like clothes, gadgets, or toys
             names.addAll(Arrays.asList(aliases));
             return names.toArray(new String[0]);
         }
 
-        List<StoreBrand> getStoreBrands() {
-            return storeBrands;
-        }
+        List<StoreBrand> getStoreBrands() { return storeBrands; }
     }
 
-    // This class represents an item in the shopping cart, which has a product, a selected option, and a quantity
+    // This class represents an item in the shopping cart
     private static class CartItem {
         private final Product product;
         private final ProductOption option;
         private int quantity;
 
         CartItem(Product product, ProductOption option, int quantity) {
-            // Cart item remembers product, selected option, and quantity bought
             this.product = product;
             this.option = option;
             this.quantity = quantity;
         }
 
-        Product getProduct() {
-            return product;
-        }
-
-        ProductOption getOption() {
-            return option;
-        }
-
-        int getQuantity() {
-            return quantity;
-        }
+        Product getProduct()      { return product; }
+        ProductOption getOption() { return option; }
+        int getQuantity()         { return quantity; }
 
         String getDisplayName() {
             return product.getDisplayName(option);
         }
 
         String getChoiceDisplay() {
-            // Receipt/cart table shows dash if the product has no option
             return option == null ? "-" : option.getName();
         }
 
         boolean matches(Product otherProduct, ProductOption otherOption) {
-            if (product != otherProduct) {
-                // Different product means this cart line is not the same item
-                return false;
-            }
-
-            if (option == null || otherOption == null) {
-                // Both options must be null to match products without choices
-                return option == otherOption;
-            }
-
-            // Same product and same option name means quantity can be combined
+            if (product != otherProduct) return false;
+            if (option == null || otherOption == null) return option == otherOption;
             return option.getName().equals(otherOption.getName());
         }
 
@@ -1503,98 +1395,79 @@ public class DepStore {
         }
 
         int getSubtotal() {
-            // Subtotal is price times how many pieces are in this cart item
             return product.getPrice() * quantity;
         }
     }
 
-    // This class represents the entire store, which contains a list of categories, and builds all the category, brand, 
-    // and product data when initialized,
-    //  allowing the main program to access the store's inventory and structure through a single Store object, and keeping
-    //  all the data organized in one place with helper methods to create products with different options and categories
-    //  with different brands
+    // This class represents the entire store, which contains all categories, brands, and products
     private static class Store {
         private final List<Category> categories;
 
         Store() {
             categories = new ArrayList<>();
-            // Builds all category, store, and product data when Store is created
             addProducts();
         }
 
-        // This method returns the list of categories in the store, which is used by the main program 
-        // to display category options and access products
         List<Category> getCategories() {
             return categories;
         }
 
+        // Factory method — creates an OptionedProduct (clothing, shoes, beauty with sizes/options)
         private Product product(String storeName, String name, String optionLabel, String[] options, int price, String... aliases) {
-            // Creates a product with options like Size, SPF, or Weight
-            return new Product(storeName, name, optionLabel, choices(options), price, aliases);
+            return new OptionedProduct(storeName, name, optionLabel, choices(options), price, aliases);
         }
 
+        // Factory method — creates a SimpleProduct (electronics, home, toys without options)
         private Product product(String storeName, String name, int price, String... aliases) {
-            // Creates a product without extra choices/options
-            return new Product(storeName, name, "", new ProductOption[0], price, aliases);
+            return new SimpleProduct(storeName, name, price, aliases);
         }
 
         private StoreBrand brand(String name, String[] aliases, Product... products) {
-            // Shortcut method para mas maiksi gumawa ng StoreBrand sa product list
             return new StoreBrand(name, aliases, products);
         }
 
         private Product clothing(String storeName, String name, int price, String... aliases) {
-            // Clothing products use the common clothing sizes
             return product(storeName, name, "Size", CLOTHING_SIZES, price, aliases);
         }
 
         private Product socks(String storeName, int price) {
-            // Socks have their own size list
             return product(storeName, "Socks", "Size", SOCK_SIZES, price, "sock");
         }
 
         private Product shoes(String storeName, String name, int price, String... aliases) {
-            // Regular shoes use number sizes 6 to 10
             return product(storeName, name, "Size", SHOE_SIZES, price, aliases);
         }
 
         private Product euroShoes(String storeName, String name, int price, String... aliases) {
-            // Some brands use European shoe sizes
             return product(storeName, name, "Size", EURO_SHOE_SIZES, price, aliases);
         }
 
         private Product jeans(String storeName, String[] sizes, int price) {
-            // Jeans can pass different waist size lists per brand
             return product(storeName, "Jeans", "Size", sizes, price, "jean", "pants", "pant");
         }
 
         private Product beauty(String storeName, String name, String label, String[] options, int price, String... aliases) {
-            // Beauty products are created through one helper so the category list is cleaner
+            // Beauty products are created as SimpleProduct (no selectable options in this version)
             return product(storeName, name, price, aliases);
         }
 
         private Product home(String storeName, String name, int price, String... aliases) {
-            // Home products do not need sizes/options
             return product(storeName, name, price, aliases);
         }
 
         private Product electronic(String storeName, String name, int price, String... aliases) {
-            // Electronics products do not need sizes/options
             return product(storeName, name, price, aliases);
         }
 
         private Product sportSized(String storeName, String name, int price, String... aliases) {
-            // Some sports products use sizes
-            return product(storeName, name, "Size", new String[] {"S", "M", "L", "XL", "XXL"}, price, aliases);
+            return product(storeName, name, "Size", new String[]{"S", "M", "L", "XL", "XXL"}, price, aliases);
         }
 
         private Product sportWeighted(String storeName, String name, int price, String... aliases) {
-            // Some sports products use weight options like 2 kg or 10 kg
             return product(storeName, name, "Weight", WEIGHT_CHOICES, price, aliases);
         }
 
         private Product sport(String storeName, String name, int price, String... aliases) {
-            // Regular sports products do not need options
             return product(storeName, name, price, aliases);
         }
 
@@ -1603,12 +1476,10 @@ public class DepStore {
         }
 
         private Product toy(String storeName, String name, int price, String... aliases) {
-            // Toy products do not need options
             return product(storeName, name, price, aliases);
         }
 
         private void addProducts() {
-            // Adds all main categories to the store
             addClothing();
             addBeauty();
             addHomeAndLiving();
@@ -1618,7 +1489,6 @@ public class DepStore {
         }
 
         private void addClothing() {
-            // Clothing category contains all clothing stores/brands
             categories.add(new Category(
                     "Clothing",
                     alias("clothes", "apparel", "wear"),
@@ -1633,7 +1503,6 @@ public class DepStore {
         }
 
         private StoreBrand clothingBrand(String storeName, String[] aliases) {
-            // Reusable clothing brand template so similar brands share the same product list
             return brand(storeName, aliases,
                     clothing(storeName, "T-shirt", 399, "shirt", "shirts", "tshirt", "tshirts"),
                     clothing(storeName, "Polo shirt", 699, "polo", "polos", "polo shirts"),
@@ -1647,7 +1516,6 @@ public class DepStore {
 
         private StoreBrand zaraBrand() {
             String storeName = "Zara";
-            // Zara has a custom product list and a different jeans size list
             return brand(storeName, alias(),
                     clothing(storeName, "T-shirt", 499, "shirt", "shirts"),
                     clothing(storeName, "Blazer", 2499, "blazers"),
@@ -1661,7 +1529,6 @@ public class DepStore {
 
         private StoreBrand lacosteBrand() {
             String storeName = "Lacoste";
-            // Lacoste has custom products like sneakers, cap, and socks
             return brand(storeName, alias(),
                     clothing(storeName, "Polo shirt", 2499, "polo", "polos"),
                     clothing(storeName, "T-shirt", 1499, "shirt", "shirts"),
@@ -1674,7 +1541,6 @@ public class DepStore {
         }
 
         private void addBeauty() {
-            // Beauty category contains makeup, skincare, and personal care brands
             categories.add(new Category(
                     "Beauty & Personal Care",
                     alias("beauty", "personal care", "care"),
@@ -1690,7 +1556,6 @@ public class DepStore {
 
         private StoreBrand watsonsBrand() {
             String storeName = "Watsons";
-            // Watsons product list with common personal care items
             return brand(storeName, alias(),
                     beauty(storeName, "Facial cleanser", "Type", alias("whitening", "acne control", "hydrating", "oil control", "sensitive"), 249, "cleanser"),
                     beauty(storeName, "Shampoo", "Type", alias("anti dandruff", "smoothening", "hair fall control", "volumizing", "color care"), 189),
@@ -1704,7 +1569,6 @@ public class DepStore {
 
         private StoreBrand avonBrand() {
             String storeName = "Avon";
-            // Avon product list with makeup and fragrance items
             return brand(storeName, alias(),
                     beauty(storeName, "Lipstick", "Shade", alias("nude", "pink", "red", "coral", "plum"), 299),
                     beauty(storeName, "Foundation", "Shade", alias("light", "beige", "natural", "tan", "deep"), 499),
@@ -1717,7 +1581,6 @@ public class DepStore {
         }
 
         private StoreBrand niveaBrand(String storeName, String[] aliases) {
-            // Nivea/Livea uses aliases so either spelling can be accepted
             return brand(storeName, aliases,
                     beauty(storeName, "Body lotion", "Type", alias("whitening", "extra white", "nourishing", "firming", "aloe"), 259),
                     beauty(storeName, "Face wash", "Type", alias("acne control", "whitening", "oil control", "hydrating", "men"), 229),
@@ -1730,7 +1593,6 @@ public class DepStore {
         }
 
         private StoreBrand maybellineBrand(String storeName, String[] aliases) {
-            // Maybelline/Maveline uses aliases so typed brand names still match
             return brand(storeName, aliases,
                     beauty(storeName, "Foundation", "Shade", alias("light", "natural", "beige", "warm", "deep"), 499),
                     beauty(storeName, "Lipstick", "Shade", alias("nude", "pink", "red", "mauve", "brown"), 349),
@@ -1744,7 +1606,6 @@ public class DepStore {
 
         private StoreBrand benefitBrand() {
             String storeName = "Benefit";
-            // Benefit product list with brow, blush, and primer products
             return brand(storeName, alias(),
                     beauty(storeName, "Brow gel", "Shade", alias("light", "medium", "dark", "deep", "clear"), 899),
                     beauty(storeName, "Mascara", "Type", alias("volumizing", "lengthening", "curling", "waterproof", "mini"), 999),
@@ -1758,7 +1619,6 @@ public class DepStore {
 
         private StoreBrand cliniqueBrand() {
             String storeName = "Clinique";
-            // Clinique product list with higher priced skincare and makeup
             return brand(storeName, alias(),
                     beauty(storeName, "Foundation", "Shade", alias("very light", "light", "medium", "tan", "deep"), 1899),
                     beauty(storeName, "Moisturizer", "Type", alias("gel", "lotion", "cream", "oil free", "hydrating"), 1499),
@@ -1772,7 +1632,6 @@ public class DepStore {
 
         private StoreBrand skintificBrand() {
             String storeName = "Skintific";
-            // Skintific product list with skincare focused products
             return brand(storeName, alias(),
                     beauty(storeName, "Moisturizer", "Type", alias("barrier repair", "hydrating", "brightening", "acne", "calming"), 599),
                     beauty(storeName, "Cleanser", "Type", alias("gentle", "acne control", "oil control", "hydrating", "sensitive"), 399),
@@ -1786,7 +1645,6 @@ public class DepStore {
 
         private StoreBrand macBrand() {
             String storeName = "MAC";
-            // MAC has an alias for "mac cosmetics"
             return brand(storeName, alias("mac cosmetics"),
                     beauty(storeName, "Lipstick", "Shade", alias("nude", "pink", "red", "brown", "plum"), 1299),
                     beauty(storeName, "Foundation", "Shade", alias("fair", "light", "medium", "tan", "deep"), 2499),
@@ -1799,7 +1657,6 @@ public class DepStore {
         }
 
         private void addHomeAndLiving() {
-            // Home and Living category contains furniture and household stores
             categories.add(new Category(
                     "Home and Living",
                     alias("home", "living", "house", "household"),
@@ -1814,12 +1671,10 @@ public class DepStore {
         }
 
         private StoreBrand homeBrand(String storeName) {
-            // If no aliases are needed, this sends an empty alias list
             return homeBrand(storeName, alias());
         }
 
         private StoreBrand homeBrand(String storeName, String[] aliases) {
-            // Reusable home store template with furniture and decor products
             return brand(storeName, aliases,
                     home(storeName, "Sofa", 12999, "couch"),
                     home(storeName, "Dining table", 8999, "table"),
@@ -1832,7 +1687,6 @@ public class DepStore {
         }
 
         private void addElectronics() {
-            // Electronics category contains tech and appliance stores
             categories.add(new Category(
                     "Electronics",
                     alias("electronic", "gadgets", "tech", "technology"),
@@ -1847,12 +1701,10 @@ public class DepStore {
         }
 
         private StoreBrand electronicsBrand(String storeName) {
-            // If no aliases are needed, this sends an empty alias list
             return electronicsBrand(storeName, alias());
         }
 
         private StoreBrand electronicsBrand(String storeName, String[] aliases) {
-            // Reusable electronics store template with common gadgets
             return brand(storeName, aliases,
                     electronic(storeName, "Laptop", 35999, "laptops"),
                     electronic(storeName, "Monitor", 8999, "monitors"),
@@ -1865,7 +1717,6 @@ public class DepStore {
         }
 
         private void addSports() {
-            // Sports category contains sports and lifestyle brands
             categories.add(new Category(
                     "Sports & Lifestyle",
                     alias("sports", "sport", "lifestyle", "fitness"),
@@ -1880,7 +1731,6 @@ public class DepStore {
         }
 
         private StoreBrand sportsBrand(String storeName, String[] aliases) {
-            // Reusable sports store template with equipment, shoes, and training items
             return brand(storeName, aliases,
                     sport(storeName, "Basketball", 999, "ball"),
                     shoes(storeName, "Running shoes", 2499, "shoes", "shoe"),
@@ -1893,7 +1743,6 @@ public class DepStore {
         }
 
         private void addToys() {
-            // Toys category contains toy and entertainment stores
             categories.add(new Category(
                     "Toys & Entertainment",
                     alias("toys", "toy", "entertainment", "games", "game"),
@@ -1908,12 +1757,10 @@ public class DepStore {
         }
 
         private StoreBrand toyBrand(String storeName) {
-            // Uses the same name as the alias if no special alias is given
             return toyBrand(storeName, storeName);
         }
 
         private StoreBrand toyBrand(String storeName, String aliasName) {
-            // Reusable toy store template with common toy products
             return brand(storeName, alias(aliasName),
                     toy(storeName, "Board game", 699, "board games"),
                     toy(storeName, "Action figure", 599, "figure"),
