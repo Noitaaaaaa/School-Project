@@ -12,7 +12,6 @@ public class DepStore {
     private static final String[] JEAN_SIZES = {"28", "30", "32", "34", "36"};
     private static final String[] ZARA_JEAN_SIZES = {"26", "28", "30", "32", "34"};
     private static final String[] EURO_SHOE_SIZES = {"36", "37", "38", "39", "40"};
-    private static final String[] SPF_CHOICES = {"30", "50", "60", "75", "100"};
     private static final String[] WEIGHT_CHOICES = {"2kg", "5kg", "10kg", "15kg", "20kg"};
     private static final String[] TUMBLER_SIZES = {"16 oz", "20 oz", "24 oz", "32 oz", "40 oz"};
 
@@ -1446,8 +1445,7 @@ public class DepStore {
             return product(storeName, "Jeans", "Size", sizes, price, "jean", "pants", "pant");
         }
 
-        private Product beauty(String storeName, String name, String label, String[] options, int price, String... aliases) {
-            // Beauty products are created as SimpleProduct (no selectable options in this version)
+        private Product beauty(String storeName, String name, int price, String... aliases) {
             return product(storeName, name, price, aliases);
         }
 
@@ -1555,106 +1553,106 @@ public class DepStore {
         }
 
         private StoreBrand watsonsBrand() {
-            String storeName = "Watsons";
-            return brand(storeName, alias(),
-                    beauty(storeName, "Facial cleanser", "Type", alias("whitening", "acne control", "hydrating", "oil control", "sensitive"), 249, "cleanser"),
-                    beauty(storeName, "Shampoo", "Type", alias("anti dandruff", "smoothening", "hair fall control", "volumizing", "color care"), 189),
-                    beauty(storeName, "Body wash", "Type", alias("moisturizing", "whitening", "antibacterial", "exfoliating", "refreshing"), 220),
-                    beauty(storeName, "Lotion", "Type", alias("whitening", "SPF", "moisturizing", "firming", "soothing"), 210),
-                    beauty(storeName, "Toothpaste", "Type", alias("whitening", "sensitive", "gum care", "herbal", "total protection"), 120),
-                    beauty(storeName, "Sunscreen", "SPF", SPF_CHOICES, 349),
-                    beauty(storeName, "Face mask", "Type", alias("sheet", "clay", "peel off", "hydrating", "brightening"), 99),
-                    beauty(storeName, "Lip balm", "Type", alias("tinted", "medicated", "SPF", "flavored", "moisturizing"), 139));
-        }
+    String storeName = "Watsons";
+    return brand(storeName, alias(),
+            beauty(storeName, "Facial cleanser", 249, "cleanser"),
+            beauty(storeName, "Shampoo", 189),
+            beauty(storeName, "Body wash", 220),
+            beauty(storeName, "Lotion", 210),
+            beauty(storeName, "Toothpaste", 120),
+            beauty(storeName, "Sunscreen", 349),
+            beauty(storeName, "Face mask", 99),
+            beauty(storeName, "Lip balm", 139));
+}
 
-        private StoreBrand avonBrand() {
-            String storeName = "Avon";
-            return brand(storeName, alias(),
-                    beauty(storeName, "Lipstick", "Shade", alias("nude", "pink", "red", "coral", "plum"), 299),
-                    beauty(storeName, "Foundation", "Shade", alias("light", "beige", "natural", "tan", "deep"), 499),
-                    beauty(storeName, "Mascara", "Type", alias("volumizing", "lengthening", "waterproof", "curling", "defining"), 299),
-                    beauty(storeName, "Perfume", "Variant", alias("floral", "fruity", "woody", "fresh", "oriental"), 699),
-                    beauty(storeName, "Face powder", "Shade", alias("ivory", "beige", "natural", "honey", "deep"), 349),
-                    beauty(storeName, "Lotion", "Variant", alias("whitening", "moisturizing", "firming", "scented", "SPF"), 249),
-                    beauty(storeName, "Eyeliner", "Type", alias("pencil", "liquid", "gel", "waterproof", "smudge proof"), 229),
-                    beauty(storeName, "Blush", "Shade", alias("pink", "peach", "coral", "rose", "berry"), 329));
-        }
+private StoreBrand avonBrand() {
+    String storeName = "Avon";
+    return brand(storeName, alias(),
+            beauty(storeName, "Lipstick", 299),
+            beauty(storeName, "Foundation", 499),
+            beauty(storeName, "Mascara", 299),
+            beauty(storeName, "Perfume", 699),
+            beauty(storeName, "Face powder", 349, "powder"),
+            beauty(storeName, "Lotion", 249),
+            beauty(storeName, "Eyeliner", 229),
+            beauty(storeName, "Blush", 329));
+}
 
-        private StoreBrand niveaBrand(String storeName, String[] aliases) {
-            return brand(storeName, aliases,
-                    beauty(storeName, "Body lotion", "Type", alias("whitening", "extra white", "nourishing", "firming", "aloe"), 259),
-                    beauty(storeName, "Face wash", "Type", alias("acne control", "whitening", "oil control", "hydrating", "men"), 229),
-                    beauty(storeName, "Deodorant", "Type", alias("roll on", "spray", "stick", "whitening", "invisible"), 189),
-                    beauty(storeName, "Lip balm", "Variant", alias("original", "cherry", "strawberry", "blackberry", "SPF"), 149),
-                    beauty(storeName, "Cream", "Type", alias("soft", "moisturizing", "intensive", "anti aging", "men"), 199),
-                    beauty(storeName, "Sunscreen", "SPF", SPF_CHOICES, 379),
-                    beauty(storeName, "Body serum", "Type", alias("whitening", "radiant", "repair", "firming", "UV protect"), 329),
-                    beauty(storeName, "Shower gel", "Variant", alias("fresh", "moisturizing", "relaxing", "exfoliating", "men"), 249));
-        }
+private StoreBrand niveaBrand(String storeName, String[] aliases) {
+    return brand(storeName, aliases,
+            beauty(storeName, "Body lotion", 259, "lotion"),
+            beauty(storeName, "Face wash", 229),
+            beauty(storeName, "Deodorant", 189, "deo"),
+            beauty(storeName, "Lip balm", 149),
+            beauty(storeName, "Cream", 199),
+            beauty(storeName, "Sunscreen", 379),
+            beauty(storeName, "Body serum", 329, "serum"),
+            beauty(storeName, "Shower gel", 249, "gel"));
+}
 
-        private StoreBrand maybellineBrand(String storeName, String[] aliases) {
-            return brand(storeName, aliases,
-                    beauty(storeName, "Foundation", "Shade", alias("light", "natural", "beige", "warm", "deep"), 499),
-                    beauty(storeName, "Lipstick", "Shade", alias("nude", "pink", "red", "mauve", "brown"), 349),
-                    beauty(storeName, "Mascara", "Type", alias("volumizing", "lengthening", "waterproof", "curling", "washable"), 399),
-                    beauty(storeName, "Concealer", "Shade", alias("light", "medium", "honey", "caramel", "deep"), 379),
-                    beauty(storeName, "Eyeliner", "Type", alias("liquid", "gel", "pencil", "waterproof", "matte"), 299),
-                    beauty(storeName, "Powder", "Shade", alias("light", "natural", "beige", "honey", "deep"), 349),
-                    beauty(storeName, "Blush", "Shade", alias("pink", "coral", "peach", "berry", "rose"), 329),
-                    beauty(storeName, "Brow pencil", "Shade", alias("light brown", "brown", "dark brown", "gray", "black"), 299));
-        }
+private StoreBrand maybellineBrand(String storeName, String[] aliases) {
+    return brand(storeName, aliases,
+            beauty(storeName, "Foundation", 499),
+            beauty(storeName, "Lipstick", 349),
+            beauty(storeName, "Mascara", 399),
+            beauty(storeName, "Concealer", 379),
+            beauty(storeName, "Eyeliner", 299),
+            beauty(storeName, "Powder", 349),
+            beauty(storeName, "Blush", 329),
+            beauty(storeName, "Brow pencil", 299, "brow", "eyebrow pencil"));
+}
 
-        private StoreBrand benefitBrand() {
-            String storeName = "Benefit";
-            return brand(storeName, alias(),
-                    beauty(storeName, "Brow gel", "Shade", alias("light", "medium", "dark", "deep", "clear"), 899),
-                    beauty(storeName, "Mascara", "Type", alias("volumizing", "lengthening", "curling", "waterproof", "mini"), 999),
-                    beauty(storeName, "Blush", "Shade", alias("pink", "peach", "coral", "rose", "berry"), 1299),
-                    beauty(storeName, "Primer", "Type", alias("pore minimizing", "hydrating", "matte", "brightening", "smoothing"), 1499),
-                    beauty(storeName, "Highlighter", "Shade", alias("pearl", "champagne", "gold", "pink", "bronze"), 1399),
-                    beauty(storeName, "Lip tint", "Shade", alias("rose", "cherry", "coral", "nude", "berry"), 899),
-                    beauty(storeName, "Setting spray", "Type", alias("matte", "dewy", "long wear", "hydrating", "refreshing"), 1199),
-                    beauty(storeName, "Brow pencil", "Shade", alias("blonde", "light brown", "brown", "dark brown", "black"), 999));
-        }
+private StoreBrand benefitBrand() {
+    String storeName = "Benefit";
+    return brand(storeName, alias(),
+            beauty(storeName, "Brow gel", 899, "brow gel", "eyebrow gel"),
+            beauty(storeName, "Mascara", 999),
+            beauty(storeName, "Blush", 1299),
+            beauty(storeName, "Primer", 1499),
+            beauty(storeName, "Highlighter", 1399, "highlight"),
+            beauty(storeName, "Lip tint", 899, "tint"),
+            beauty(storeName, "Setting spray", 1199, "spray", "setting"),
+            beauty(storeName, "Brow pencil", 999, "brow", "eyebrow pencil"));
+}
 
-        private StoreBrand cliniqueBrand() {
-            String storeName = "Clinique";
-            return brand(storeName, alias(),
-                    beauty(storeName, "Foundation", "Shade", alias("very light", "light", "medium", "tan", "deep"), 1899),
-                    beauty(storeName, "Moisturizer", "Type", alias("gel", "lotion", "cream", "oil free", "hydrating"), 1499),
-                    beauty(storeName, "Cleanser", "Type", alias("mild", "oily skin", "dry skin", "combo skin", "acne"), 1199),
-                    beauty(storeName, "Lipstick", "Shade", alias("nude", "pink", "red", "berry", "coral"), 1299),
-                    beauty(storeName, "Serum", "Type", alias("anti aging", "brightening", "hydrating", "repair", "firming"), 2199),
-                    beauty(storeName, "Sunscreen", "SPF", alias("30", "40", "50", "60", "100"), 1699),
-                    beauty(storeName, "Eye cream", "Type", alias("anti dark circle", "firming", "hydrating", "smoothing", "brightening"), 1999),
-                    beauty(storeName, "Face mist", "Type", alias("hydrating", "refreshing", "calming", "glow", "oil control"), 999));
-        }
+private StoreBrand cliniqueBrand() {
+    String storeName = "Clinique";
+    return brand(storeName, alias(),
+            beauty(storeName, "Foundation", 1899),
+            beauty(storeName, "Moisturizer", 1499, "moisturizer", "moisturize"),
+            beauty(storeName, "Cleanser", 1199),
+            beauty(storeName, "Lipstick", 1299),
+            beauty(storeName, "Serum", 2199),
+            beauty(storeName, "Sunscreen", 1699),
+            beauty(storeName, "Eye cream", 1999, "eye cream", "eyecream"),
+            beauty(storeName, "Face mist", 999, "mist"));
+}
 
-        private StoreBrand skintificBrand() {
-            String storeName = "Skintific";
-            return brand(storeName, alias(),
-                    beauty(storeName, "Moisturizer", "Type", alias("barrier repair", "hydrating", "brightening", "acne", "calming"), 599),
-                    beauty(storeName, "Cleanser", "Type", alias("gentle", "acne control", "oil control", "hydrating", "sensitive"), 399),
-                    beauty(storeName, "Sunscreen", "SPF", SPF_CHOICES, 499),
-                    beauty(storeName, "Serum", "Type", alias("niacinamide", "salicylic", "brightening", "hydrating", "repair"), 599),
-                    beauty(storeName, "Toner", "Type", alias("exfoliating", "hydrating", "soothing", "brightening", "acne"), 449),
-                    beauty(storeName, "Cushion foundation", "Shade", alias("light", "natural", "beige", "honey", "deep"), 699),
-                    beauty(storeName, "Face mask", "Type", alias("clay", "sheet", "calming", "brightening", "acne"), 349),
-                    beauty(storeName, "Essence", "Type", alias("hydrating", "repairing", "glow", "calming", "anti aging"), 549));
-        }
+private StoreBrand skintificBrand() {
+    String storeName = "Skintific";
+    return brand(storeName, alias(),
+            beauty(storeName, "Moisturizer", 599, "moisturizer", "moisturize"),
+            beauty(storeName, "Cleanser", 399),
+            beauty(storeName, "Sunscreen", 499),
+            beauty(storeName, "Serum", 599),
+            beauty(storeName, "Toner", 449),
+            beauty(storeName, "Cushion foundation", 699, "cushion"),
+            beauty(storeName, "Face mask", 349, "mask"),
+            beauty(storeName, "Essence", 549));
+}
 
-        private StoreBrand macBrand() {
-            String storeName = "MAC";
-            return brand(storeName, alias("mac cosmetics"),
-                    beauty(storeName, "Lipstick", "Shade", alias("nude", "pink", "red", "brown", "plum"), 1299),
-                    beauty(storeName, "Foundation", "Shade", alias("fair", "light", "medium", "tan", "deep"), 2499),
-                    beauty(storeName, "Concealer", "Shade", alias("light", "medium", "warm", "tan", "deep"), 1599),
-                    beauty(storeName, "Powder", "Shade", alias("light", "medium", "tan", "dark", "deep"), 1799),
-                    beauty(storeName, "Eyeshadow", "Shade", alias("neutral", "bronze", "pink", "smoky", "colorful"), 1499),
-                    beauty(storeName, "Blush", "Shade", alias("peach", "pink", "coral", "rose", "berry"), 1699),
-                    beauty(storeName, "Highlighter", "Shade", alias("gold", "champagne", "pearl", "pink", "bronze"), 1899),
-                    beauty(storeName, "Setting spray", "Type", alias("matte", "dewy", "long lasting", "hydrating", "fixing"), 1599));
-        }
+private StoreBrand macBrand() {
+    String storeName = "MAC";
+    return brand(storeName, alias("mac cosmetics"),
+            beauty(storeName, "Lipstick", 1299),
+            beauty(storeName, "Foundation", 2499),
+            beauty(storeName, "Concealer", 1599),
+            beauty(storeName, "Powder", 1799),
+            beauty(storeName, "Eyeshadow", 1499, "eyeshadow", "shadow"),
+            beauty(storeName, "Blush", 1699),
+            beauty(storeName, "Highlighter", 1899, "highlight"),
+            beauty(storeName, "Setting spray", 1599, "spray", "setting"));
+}
 
         private void addHomeAndLiving() {
             categories.add(new Category(
